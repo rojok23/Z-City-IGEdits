@@ -10,8 +10,8 @@ SWEP.HoldType = "slam"
 SWEP.ViewModel = ""
 SWEP.WorldModel = "models/gibs/hgibs_spine.mdl"
 if CLIENT then
-	SWEP.WepSelectIcon = Material("spawnicons/models/gibs/hgibs_spine_128x64.png")
-	SWEP.IconOverride = "spawnicons/models/gibs/hgibs_spine_128.png"
+	SWEP.WepSelectIcon = Material("pluv/pluv.png")
+	SWEP.IconOverride = "pluv/pluv.png"
 	SWEP.BounceWeaponIcon = true
 end
 
