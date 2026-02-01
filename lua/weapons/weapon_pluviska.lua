@@ -10,8 +10,8 @@ SWEP.HoldType = "slam"
 SWEP.ViewModel = ""
 SWEP.WorldModel = "models/gibs/hgibs_spine.mdl"
 if CLIENT then
-	SWEP.WepSelectIcon = Material("spawnicons/models/gibs/hgibs_spine_128x64.png")
-	SWEP.IconOverride = "spawnicons/models/gibs/hgibs_spine_128.png"
+	SWEP.WepSelectIcon = Material("pluv/pluv.png")
+	SWEP.IconOverride = "pluv/pluv.png"
 	SWEP.BounceWeaponIcon = true
 end
 
@@ -46,7 +46,7 @@ function SWEP:DrawWorldModel2()
 	self.model = IsValid(self.model) and self.model or ClientsideModel( self:GetCurModel() )
 	self.model:SetNoDraw(true)
 	local WorldModel = self.model
-	local owner = self:GetOwner()
+	local owner = hg.GetCurrentCharacter(self:GetOwner())
 	
 	if not IsValid(WorldModel) then return end
 	if WorldModel:GetModel() ~= self:GetCurModel() then WorldModel:Remove() return end
