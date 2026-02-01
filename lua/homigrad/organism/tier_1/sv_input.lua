@@ -162,7 +162,7 @@ function hg.organism.AmputateLimb(org, limb)
 	if org[limb.."amputated"] == nil then return end
 
 	local bone = limbs[limb]
-
+	if !IsValid(org.owner) then return end
 	local len = org.owner:BoneLength(org.owner:LookupBone(bone))
 	local vec = Vector(len, 0, 0)
 	local ang = Angle()
@@ -935,6 +935,7 @@ hook.Add("EntityTakeDamage", "homigrad-damage", function(ent, dmgInfo)
 			if !org then return end
 			if !org.dmgstack then return end
 			if !org.dmgstack[hitgroup] then return end
+			if !org.dmgstack[hitgroup][1] then return end
 			local should = org.dmgstack[hitgroup][1] > hitgroup_max
 
 			local limbs = {
