@@ -27,8 +27,8 @@ SWEP.AnimList = {
 }
 
 SWEP.CustomShell = "45acp"
-SWEP.EjectPos = Vector(-5,2,10)
---SWEP.EjectAng = Angle(-55,80,0)
+SWEP.EjectPos = Vector(12,3,0)
+SWEP.EjectAng = Angle(0,0,0)
 
 SWEP.weight = 1
 SWEP.punchmul = 1.5
@@ -101,11 +101,11 @@ SWEP.shouldntDrawHolstered = true
 SWEP.availableAttachments = {
 	barrel = {
 		[1] = {"supressor4", Vector(0,0,0), {}},
-        ["mount"] = Vector(-3.35,0.73,0),
+        ["mount"] = Vector(-0.7,0.73,0),
     },
 	sight = {
 		["mountType"] = {"picatinny","pistolmount"},
-		["mount"] = {["picatinny"] = Vector(-5, 1.3, 0.05), ["pistolmount"] = Vector(-6.9, -0.4, 0.05)}
+		["mount"] = {["picatinny"] = Vector(-3.5, 1.75, 0.05), ["pistolmount"] = Vector(-4.5, -0.4, 0.05)}
 	},
 	underbarrel = {
 		["mount"] = Vector(9.8, -0.6, -0.8),
@@ -115,7 +115,7 @@ SWEP.availableAttachments = {
 	mount = {
 		["picatinny"] = {
 			"mount4",
-			Vector(-3.8, -0.9, 0),
+			Vector(-2, -0.3, 0),
 			{},
 			["mountType"] = "picatinny",
 		}
