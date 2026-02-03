@@ -52,7 +52,7 @@ end)
 
 function SWEP:GetZoomPos(recoilZoomPos, view, eyePos)
 	recoilZoomPos = recoilZoomPos or vecZero
-	
+	gun = IsValid(gun) and gun or self:GetWeaponEntity()
 	local pos, ang = gun:GetPos(), gun:GetAngles()
 
 	if self.WorldModelFake then

@@ -483,7 +483,7 @@ if CLIENT then
             surface.SetFont("CMBFontSmall")
             local org = self.organism
             if not org or not org.pulse then return end
-            local pulse = org.pulse
+            local pulse = org.heartbeat
             pulse_txt = math.Round(math.min(pulse_txt + 1, pulse))
             local col_bg = bg_color
             col_bg.a = 225
