@@ -111,6 +111,13 @@ function CLASS.On(self)
 				end
 			end
 		end)
+
+		if self:HasWeapon("weapon_hands_sh") then
+			self:SelectWeapon("weapon_hands_sh")
+		else
+			local hands = self:Give("weapon_hands_sh")
+			self:SelectWeapon(hands)
+		end
 	end
 end
 
@@ -181,8 +188,8 @@ function CLASS.Think(self)
 		if self:HasWeapon("weapon_hands_sh") then
 			self:SelectWeapon("weapon_hands_sh")
 		else
-			self:Give("weapon_hands_sh")
-			self:SelectWeapon("weapon_hands_sh")
+			local hands = self:Give("weapon_hands_sh")
+			self:SelectWeapon(hands)
 		end
 	end
 
@@ -285,7 +292,7 @@ end)
 
 --// Can't pickup weapons and use doors
 hook.Add("PlayerCanPickupWeapon", "ZombCantPickup", function(ply, ent)
-	if IsValid(ply) and ply.PlayerClassName == "headcrabzombie" then
+	if IsValid(ply) and ply.PlayerClassName == "headcrabzombie" and ent:GetClass() ~= "weapon_hands_sh" then
 		return false
 	end
 end)
