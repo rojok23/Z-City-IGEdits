@@ -34,6 +34,7 @@ properties.Add( "notify", {
         ent = hg.RagdollOwner( ent ) or ent
 
 		ent:Notify( text, 0 )
+		print(ply.." has notfied "..ent.." with the following message; ")
 	end 
 } )
 
@@ -67,6 +68,7 @@ properties.Add( "givegun", {
 		local spawned = ent:Give( text )
         if not spawned then return end
         spawned:Use( ent )
+		print(ply.." has given "..ent.." a SWEP; "..text)
 	end 
 } )
 
@@ -78,7 +80,7 @@ properties.Add( "strip", {
 	Filter = check,
 	Action = function( self, ent ) -- The action to perform upon using the property ( Clientside )
         Derma_Query(
-            "The player will automatically get a hands",
+            "The player will be stripped down to only their fists.",
             "Are you sure?",
             "Yes",
             function()
@@ -98,6 +100,7 @@ properties.Add( "strip", {
         ent = hg.RagdollOwner( ent ) or ent
 		ent:StripWeapons( )
         ent:Give("weapon_hands_sh")
+		print(ply.." has stripped "..ent.." of their weapons.")
 	end 
 } )
 
@@ -109,7 +112,7 @@ properties.Add( "fullstrip", {
 	Filter = check,
 	Action = function( self, ent ) -- The action to perform upon using the property ( Clientside )
         Derma_Query(
-            "Hands will be stripped, too",
+            "All weapons, including fists, will be stripped.",
             "Are you sure?",
             "Yes",
             function()
@@ -129,6 +132,7 @@ properties.Add( "fullstrip", {
         ent = hg.RagdollOwner( ent ) or ent
 
 		ent:StripWeapons( )
+		print(ply.." has full stripped "..ent.." of their weapons and fist.")
 	end 
 } )
 
@@ -160,6 +164,7 @@ properties.Add( "reset_org", {
         ent = hg.RagdollOwner( ent ) or ent
         
 		hg.organism.Clear( ent.organism )
+		print(ply.." reset the health of "..ent)
 	end 
 } )
 
@@ -190,6 +195,7 @@ properties.Add( "freeze", {
         ent = hg.RagdollOwner( ent ) or ent
         
 		ent:Freeze(not ent:IsFrozen())
+		print(ply.." has frozen "..ent)
 	end 
 } )
 
@@ -227,6 +233,7 @@ properties.Add( "snatch", {
 		local bot = ents.Create("bot_fear")
         bot.Victim = ent
         bot:Spawn()
+		print(ply.." has snatched "..ent)
 	end 
 } )
 
@@ -248,8 +255,10 @@ properties.Add( "ragdollize", {
         ent = hg.RagdollOwner(ent) or ent
 
 		if not IsValid(ent.FakeRagdoll) then
+			print(ply.." has stunned "..ent)
 			hg.LightStunPlayer(ent, 5)
 		else
+			print(ply.." has unstunned "..ent)
 			hg.FakeUp(ent)
 		end
 	end 
@@ -273,6 +282,7 @@ properties.Add( "vomit", {
         ent = hg.RagdollOwner(ent) or ent
 
 		hg.organism.Vomit(ent)
+		print(ply.." forced "..ent.." to vomit.")
 	end 
 } )
 
@@ -295,7 +305,8 @@ properties.Add( "lobotomize", {
         
         ent.organism.brain = ent.organism.brain + 0.05
         ply:ChatPrint("Lobotomized brain to "..math.Round(ent.organism.brain * 100).."%")
-        
+        print(ply.." has lobotomized "..ent)
+
         if ent.organism.brain >= 0.25 and ent.organism.brain < 0.3 then
             ply:ChatPrint("Consciousness loss on the next lobotomization!")
         end
@@ -318,7 +329,7 @@ properties.Add("killsilent", {
 
 		if ( !self:Filter( ent, ply ) ) then return end
         ent = hg.RagdollOwner( ent ) or ent
-
+		print(ply.." has silently killed "..ent)
 		ent:Kill()
 	end 
 })
@@ -339,7 +350,7 @@ properties.Add("removeply", {
 
 		if ( !self:Filter( ent, ply ) ) then return end
         ent = hg.RagdollOwner( ent ) or ent
-
+		print(ply.." has removed "..ent)
 		ent:KillSilent()
 		ent:Remove()
 	end 
@@ -422,20 +433,28 @@ properties.Add( "break_limb", {
         local dmgInfo = DamageInfo()
 		if limb == 0 then
             hg.BreakNeck(ent)
+			print(ply.." broke "..ent.."'s neck!")
         elseif limb == 1 then
             hg.organism.input_list.larmup(ent.organism, 0, 1, dmgInfo)
+			print(ply.." broke "..ent.."'s left arm!")
 		elseif limb == 2 then
 			hg.organism.input_list.rarmup(ent.organism, 0, 1, dmgInfo)
+			print(ply.." broke "..ent.."'s right arm!")
 		elseif limb == 3 then
 			hg.organism.input_list.llegup(ent.organism, 0, 1, dmgInfo)
+			print(ply.." broke "..ent.."'s left leg!")
 		elseif limb == 4 then
 			hg.organism.input_list.rlegup(ent.organism, 0, 1, dmgInfo)
+			print(ply.." broke "..ent.."'s right leg!")
 		elseif limb == 5 then
 			hg.organism.input_list.spine1(ent.organism, 0, 1, dmgInfo)
+			print(ply.." broke "..ent.."'s spine (1)")
 		elseif limb == 6 then
 			hg.organism.input_list.spine2(ent.organism, 0, 1, dmgInfo)
+			print(ply.." broke "..ent.."'s spine (2)")
 		elseif limb == 7 then
 			hg.organism.input_list.spine3(ent.organism, 0, 1, dmgInfo)
+			print(ply.." broke "..ent.."'s spine (3)")
 		end
 	end
 } )
@@ -507,16 +526,21 @@ properties.Add( "amputate_limb", {
 					end]]
 
 					Gib_Input(ent.RagdollDeath, ent.RagdollDeath:LookupBone("ValveBiped.Bip01_Head1"))
+					print(ply.." completely blew off "..ent.."'s head smoove off!")
 				end)
 			end
         elseif limb == 1 then
             hg.organism.AmputateLimb(ent.organism, "larm")
+			print(ply.." amputated "..ent.."'s left arm!")
 		elseif limb == 2 then
 			hg.organism.AmputateLimb(ent.organism, "rarm")
+			print(ply.." amputated "..ent.."'s right arm!")
 		elseif limb == 3 then
 			hg.organism.AmputateLimb(ent.organism, "lleg")
+			print(ply.." amputated "..ent.."'s left leg!")
 		elseif limb == 4 then
 			hg.organism.AmputateLimb(ent.organism, "rleg")
+			print(ply.." amputated "..ent.."'s right leg!")
 		end
 	end
 } )
@@ -644,7 +668,7 @@ end
 hg.RespawnIntoBody = Respawn
 
 properties.Add( "respawn_ply_in_rag", {
-	MenuLabel = "Spawn Player", -- Name to display on the context menu
+	MenuLabel = "Respawn Player", -- Name to display on the context menu
 	Order = 1, -- The order to display this property relative to other properties
 	MenuIcon = "icon16/heart.png", -- The icon to display next to the property
 
@@ -690,7 +714,7 @@ properties.Add( "respawn_lply_in_rag", {
 	Action = function( self, ent ) -- The action to perform upon using the property ( Clientside )
 
         Derma_Query(
-            "You will be spawn into this body",
+            "You will take over this body, and respawn as this character.",
             "Are you sure?",
             "Yes",
             function()
@@ -727,7 +751,7 @@ properties.Add( "respawn_ragply_in_rag", {
 	Action = function( self, ent ) -- The action to perform upon using the property ( Clientside )
 
         Derma_Query(
-            "Ragdoll owner will be respawned into his body",
+            "The Player of this ragdoll will be respawned into his body",
             "Are you sure?",
             "Yes",
             function()
