@@ -75,8 +75,8 @@ function COMMAND_Input(ply,args)
 	return true,cmd[1](ply,args)
 end
 -- Мдаааа А ПЛЕЙРСЕЙ ДЛЯ КОГО НУЖЕН????
-hook.Add("PlayerSay","commands-chat",function(ply, text)
-	COMMAND_Input(ply,COMMAND_GETARGS(string.Split(string.sub(text,2,#text)," ")))
+hook.Add("HG_PlayerSay","commands-chat",function(ply, txtTbl, text)
+	COMMAND_Input(ply, COMMAND_GETARGS(string.Split(string.sub(text, 2, #text), " ")))
 end)
 
 COMMANDS.help = {function(ply,args)
@@ -134,7 +134,7 @@ if SERVER then
 
         local targetNickPartial = string.lower(args[1]) 
         local target = nil
-        for _, player in ipairs(player.GetAll()) do
+        for _, player in player.Iterator() do
             if string.find(string.lower(player:Nick()), targetNickPartial) then 
                 target = player
                 break
@@ -181,7 +181,7 @@ if SERVER then
 
         local targetNickPartial = string.lower(args[1]) 
         local target = nil
-        for _, player in ipairs(player.GetAll()) do
+        for _, player in player.Iterator() do
             if string.find(string.lower(player:Nick()), targetNickPartial) then 
                 target = player
                 break
@@ -205,4 +205,22 @@ if SERVER then
         ply:ChatPrint("Sent notification to " .. target:GetName() .. ": " .. message)
 
     end, 2, "ник игрока сообщение"}
+
+	COMMANDS.setmodel = {function(ply, args)
+		if not ply:IsAdmin() then return end
+		local plya = #args > 1 and args[1] or ply:Name()
+		local mdl = #args > 1 and args[2] or args[1]
+		for i, ply2 in pairs(player.GetListByName(plya)) do
+			if ply2:Alive() then
+				local Appearance = ply2.CurAppearance or hg.Appearance.GetRandomAppearance()
+				Appearance.AColthes = ""
+				ply2:SetNetVar("Accessories", "")
+				ply2:SetModel(mdl)
+				ply2:SetSubMaterial()
+				ply2:SetPlayerColor(ply2:GetNWVector("PlayerColor", vector_origin))
+
+				ply:ChatPrint(ply2:Name().. "'s model set to " .. tostring(mdl))
+			end
+		end
+	end, 0}
 end

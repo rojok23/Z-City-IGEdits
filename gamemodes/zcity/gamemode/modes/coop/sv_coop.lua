@@ -147,7 +147,7 @@ function MODE:Intermission()
 
     self.COOPPoints = zb.GetMapPoints("HMCD_COOP_SPAWN")
 
-    for k, ply in ipairs(player.GetAll()) do
+    for k, ply in player.Iterator() do
         if ply:Team() == TEAM_SPECTATOR then continue end
         ply:SetupTeam(0)
     end
@@ -165,7 +165,17 @@ end
 local mapchange = CreateConVar("zb_coop_autochangelevel", "1", FCVAR_PROTECTED, "", 0, 1)
 
 function MODE:ShouldRoundEnd()
-    if (#zb:CheckAlive() <= 0) and (hg.MapCompleted or false) then
+
+    local lives = 0
+
+    for _,ply in player.Iterator() do
+        if not ply:Alive() then continue end
+        if ply.PlayerClassName == "Combine" or ply.PlayerClassName == "Metrocop" then continue end
+        lives = lives + 1
+    end
+
+
+    if (lives <= 0) and (hg.MapCompleted or false) then
         timer.Simple(5, function()
             hg.AddMapToTable(game.GetMap())
 
@@ -176,7 +186,7 @@ function MODE:ShouldRoundEnd()
             RunConsoleCommand("changelevel", hg.NextMap)
         end)
     end
-    return (#zb:CheckAlive() <= 0)
+    return (lives <= 0)
 end
 
 function MODE:RoundStart()
@@ -532,7 +542,7 @@ end)
 hook.Add("ZB_RoundStart", "RTSoff", function()
     if CurrentRound().name ~= "coop" then return end
     
-    for _, ply in ipairs(player.GetAll()) do
+    for _, ply in player.Iterator() do
         ply.hasUsedRTS = false
     end
 end)
@@ -540,7 +550,7 @@ end)
 hook.Add("PostCleanupMap", "RTScleanup", function()
     if CurrentRound().name ~= "coop" then return end
     
-    for _, ply in ipairs(player.GetAll()) do
+    for _, ply in player.Iterator() do
         ply.hasUsedRTS = false
     end
 end)

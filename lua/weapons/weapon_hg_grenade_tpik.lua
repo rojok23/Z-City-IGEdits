@@ -1,4 +1,4 @@
-﻿if SERVER then AddCSLuaFile() end
+if SERVER then AddCSLuaFile() end
 SWEP.Base = "weapon_tpik_base"
 SWEP.PrintName = "M67"
 SWEP.Instructions = 
@@ -225,13 +225,17 @@ end
 
 function SWEP:Throw(mul, time, nosound, throwPosAdjust, throwAngAdjust)
 	if not self.ENT then return end
+
 	local owner = self.Thrower or self:GetOwner()
 	local ent = ents.Create(self.ENT)
 	local entOwner = IsValid(owner.FakeRagdoll) and owner.FakeRagdoll or IsValid(owner) and owner
 	throwPosAdjust = throwPosAdjust or Vector(0,0,5)
 	throwAngAdjust = throwAngAdjust or Angle(0,0,0)
+	throwPosAdjust[2] = throwPosAdjust[2] + 2
+	local eyetr = self:GetEyeTrace()
+	local eyepos = eyetr and eyetr.StartPos or false
 	local ang = IsValid(entOwner) and owner:EyeAngles() or self:GetAngles()
-	local hand = IsValid(entOwner) and owner:EyePos() + ang:Forward() * throwPosAdjust[1] + ang:Right() * throwPosAdjust[2] + ang:Up() * throwPosAdjust[3] or self:GetPos()
+	local hand = eyepos and eyepos + ang:Forward() * throwPosAdjust[1] + ang:Right() * throwPosAdjust[2] + ang:Up() * throwPosAdjust[3] or self:GetPos()
 
 	if IsValid(entOwner) then
 		ent:SetOwner(entOwner or game.GetWorld())
@@ -336,6 +340,10 @@ end
 
 function SWEP:SecondaryAttack()
 	if self.ReadyToThrow or self.CoolDown > CurTime() then return end
+
+	local owner = self:GetOwner()
+	if not hg.CanUseLeftHand(owner) or not hg.CanUseRightHand(owner) then return end
+
 	self.CoolDown = CurTime() + 2
 	self:PlayAnim("pullbacklow")
 	self.Thrower = self:GetOwner()
@@ -448,12 +456,19 @@ function SWEP:CreateSpoon(entownr)
 		entasd:SetCollisionGroup(COLLISION_GROUP_WEAPON)
 		entasd:Spawn()
 		
-
 		entownr:EmitSound("weapons/m67/m67_spooneject.wav",65)
 
 		if self.SpoonSounds then
 			for k,v in ipairs(self.SpoonSounds) do
-				self:GetOwner():EmitSound(v[1],v[2])
+				self:GetOwner():EmitSound(v[1], v[2], v[3])
+
+				if v[4] then
+					local effectData = EffectData()
+					effectData:SetOrigin(entasd:GetPos())
+					effectData:SetScale(0.04)
+					effectData:SetEntity(entasd)
+					util.Effect("eff_jack_genericboom", effectData, true, true)
+				end
 			end
 		end
 
@@ -470,7 +485,15 @@ function SWEP:CreateSpoon(entownr)
 
 		if self.SpoonSounds then
 			for k,v in ipairs(self.SpoonSounds) do
-				self:GetOwner():EmitSound(v[1],v[2])
+				self:GetOwner():EmitSound(v[1], v[2], v[3])
+
+				if v[4] then
+					local effectData = EffectData()
+					effectData:SetOrigin(entasd:GetPos())
+					effectData:SetScale(0.04)
+					effectData:SetEntity(entasd)
+					util.Effect("eff_jack_genericboom", effectData, true, true)
+				end
 			end
 		end
 
@@ -484,6 +507,10 @@ SWEP.CoolDown = 0
 
 function SWEP:PrimaryAttack()
 	if self.ReadyToThrow or self.CoolDown > CurTime() then return end
+
+	local owner = self:GetOwner()
+	if not hg.CanUseLeftHand(owner) or not hg.CanUseRightHand(owner) then return end
+
 	self.CoolDown = CurTime() + 2
 	self:PlayAnim("pullbackhigh")
 	self.Thrower = self:GetOwner()

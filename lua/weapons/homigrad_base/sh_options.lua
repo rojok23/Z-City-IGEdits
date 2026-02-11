@@ -63,20 +63,21 @@ else
 	end)
 end
 
+hg.postures = {
+    [0] = "Regular hold",
+    [1] = "Hipfire",
+    [2] = "Left shoulder",
+    [3] = "High ready",
+    [4] = "Low ready",
+    [5] = "Point shooting",
+    [6] = "Shooting from cover",
+    [7] = {"Gangsta",isPistolOnly = true},
+    [8] = {"One-handed",isPistolOnly = true},
+	[9] = "Somalian",
+}
+
 if CLIENT then
 	local printed
-
-    hg.postures = {
-        [0] = "Regular hold",
-        [1] = "Hipfire",
-        [2] = "Left shoulder",
-        [3] = "High ready",
-        [4] = "Low ready",
-        [5] = "Point shooting",
-        [6] = "Shooting from cover",
-        [7] = "Gangsta",
-        [8] = "One-handed",
-    }
 
 	concommand.Add("hg_change_posture", function(ply, cmd, args)
 		if not args[1] and not isnumber(args[1]) and not printed then print([[Change your gun posture:
@@ -87,8 +88,9 @@ if CLIENT then
 4 - low ready
 5 - point shooting
 6 - shooting from cover
-7 - one-handed shooting (gangsta)
+7 - gangsta shooting
 8 - one-handed shooting
+9 - somalian shooting
 ]]) printed = true end
 		local pos = math.Round(args[1] or -1)
 		net.Start("change_posture")
@@ -110,16 +112,21 @@ else
 		if (ply.change_posture_cooldown or 0) > CurTime() then return end
 		ply.change_posture_cooldown = CurTime() + 0.1
 
-		if pos ~= -1 then 
+		local gun = ply:GetActiveWeapon()
+		if IsValid(gun) and ishgweapon(gun) then
+			ply:EmitSound("weapons/zmirli/shared/foley_light" .. math.random(1,4) .. ".wav", 45, math.random(95,105))
+		end
+
+		if pos ~= -1 then
 			if pos == ply.posture then
 				ply.posture = 0
 				pos = 0
 			else
-				ply.posture = pos 
+				ply.posture = pos
 			end
 		else
 			ply.posture = ply.posture or 0
-			ply.posture = (ply.posture + 1) >= 9 and 0 or ply.posture + 1
+			ply.posture = (ply.posture + 1) > #hg.postures and 0 or ply.posture + 1
 		end
 		net.Start("change_posture")
 		net.WriteEntity(ply)
@@ -182,12 +189,15 @@ if CLIENT then
                         local tbl2 = {}
 
                         for i, str in pairs(hg.postures) do -- DO. NOT. CHANGE. TO. IPAIRS. kthxbye
+							if istable(str) then
+								if str.isPistolOnly and !wep:IsPistolHoldType() then continue end
+							end
                             tbl2[#tbl2 + 1] = {
                                 [1] = function()
                                     RunConsoleCommand("hg_change_posture", i)
 
                                 end,
-                                [2] = str
+                                [2] = istable(str) and str[1] or str
                             }
                         end
 

@@ -145,15 +145,15 @@ if CLIENT then
 				local model = ply.modelArmor[armor]
 				model:SetNoDraw(true)
 				model:SetModelScale( (fem and armorData.femscale) or armorData.scale or 1 )
-				--if armorData.material and not model.materialset then model.materialset = true model:SetSubMaterial(0, armorData.material) end
-				if ent:GetNWString("ArmorMaterials" .. armor) and not model.materialset then 
-					model.materialset = true
-					model:SetSubMaterial(0, ply:GetNWString("ArmorMaterials" .. armor))
+				local fallback_mat = istable(armorData.material) and armorData.material[1] or armorData.material
+				if model.materialset != ply:GetNWString("ArmorMaterials" .. armor, fallback_mat) then
+					model.materialset = ply:GetNWString("ArmorMaterials" .. armor, fallback_mat)
+					model:SetSubMaterial(0, ply:GetNWString("ArmorMaterials" .. armor, fallback_mat))
 				end
 
-				if ent:GetNWInt("ArmorSkins" .. armor) and not model.skinset then 
+				if ent:GetNWInt("ArmorSkins" .. armor, 0) and not model.skinset then
 					model.skinset = true
-					model:SetSkin(ply:GetNWInt("ArmorSkins" .. armor))
+					model:SetSkin(ply:GetNWInt("ArmorSkins" .. armor, 0))
 				end
 				if not armorData.nobonemerge then
 					model:AddEffects(EF_BONEMERGE)
@@ -558,7 +558,13 @@ if CLIENT then
 				if !hg.armorNames[v] and isnumber(k) then continue end
 				//if hg.armor[v][k].nodrop then continue end
 				local but = vgui.Create("DButton")
-				but:SetText( hg.armorNames[v] or k )
+				local prefix = string.find(k, "_")
+				if prefix then
+					k = string.sub(k, prefix + 1)
+				end
+
+				but:SetText( hg.armorNames[v] or string.NiceName(k) )
+				but:SetFont("ZCity_Tiny")
 				but:Dock( TOP )
 				but:DockMargin( 0, 0, 0, 5 )
 				but:SetSize(0, ScreenScaleH(20))

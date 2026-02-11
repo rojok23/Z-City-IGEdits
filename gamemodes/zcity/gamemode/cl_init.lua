@@ -22,7 +22,7 @@ net.Receive("ZB_SpectatePlayer", function(len)
 	viewmode = net.ReadInt(4)
 
 	timer.Simple(0.1,function()
-		LocalPlayer():BoneScaleChange()
+		-- LocalPlayer():BoneScaleChange()
 		LocalPlayer():SetHull(-hullscale,hullscale)
 		LocalPlayer():SetHullDuck(-hullscale,hullscale)
 
@@ -387,13 +387,14 @@ end
 
 gameevent.Listen("player_connect")
 hook.Add("player_connect", "zcityhuy", function(data)
-	if hg.playerInfo and hg.playerInfo[data.networkid] then
-		Player(data.userid):SetMuted(hg.playerInfo[data.networkid][1])
-		Player(data.userid):SetVoiceVolumeScale(hg.playerInfo[data.networkid][2])
+	local ply = Player(data.userid)
+	if IsValid(ply) and ply.SetMuted and hg.playerInfo and hg.playerInfo[data.networkid] then
+		ply:SetMuted(hg.playerInfo[data.networkid][1])
+		ply:SetVoiceVolumeScale(hg.playerInfo[data.networkid][2])
 	end
 end)
 
-hook.Add("InitPostEntity", "higgershuy", function()
+hook.Add("InitPostEntity", "furryhuy", function()
 	if file.Exists("zcity_muted.txt", "DATA") then
 		local json = file.Read("zcity_muted.txt", "DATA")
 
@@ -401,10 +402,8 @@ hook.Add("InitPostEntity", "higgershuy", function()
 			hg.playerInfo = util.JSONToTable(json)
 		end
 
-		local plrs = player.GetAll()
-
 		if hg.playerInfo then
-			for i, ply in ipairs(plrs) do
+			for i, ply in player.Iterator() do
 				if not istable(hg.playerInfo[ply:SteamID()]) then
 					local muted = hg.playerInfo[ply:SteamID()]
 					hg.playerInfo[ply:SteamID()] = {}
@@ -536,7 +535,7 @@ function GM:ScoreboardShow()
 	muteallbut.DoClick = function(self,w,h)
 		hg.muteall = not hg.muteall
 		
-		for i,ply in ipairs(player.GetAll()) do
+		for i,ply in player.Iterator() do
 			if hg.muteall then
 				//ply.oldmutedspect = ply:IsMuted()
 
@@ -569,7 +568,7 @@ function GM:ScoreboardShow()
 	mutespectbut.DoClick = function(self,w,h)
 		hg.mutespect = not hg.mutespect
 		
-		for i,ply in ipairs(player.GetAll()) do
+		for i,ply in player.Iterator() do
 			if ply:Alive() then continue end
 
 			if hg.mutespect then
@@ -694,7 +693,7 @@ function GM:ScoreboardShow()
 	end
 
 	local disappearance = lply:GetNetVar("disappearance", nil)
-	for i, ply in ipairs(player.GetAll()) do -- надо это говно переделать.
+	for i, ply in player.Iterator() do -- надо это говно переделать.
 		if ply:Team() == TEAM_SPECTATOR then continue end
 		if CurrentRound().name == "fear" and !ply:Alive() then continue end
 		if disappearance and ply != lply then continue end
@@ -770,7 +769,7 @@ function GM:ScoreboardShow()
         surface.DrawOutlinedRect( 0, 0, w, h, 2.5 )
 	end
 
-	for i, ply in ipairs(player.GetAll()) do
+	for i, ply in player.Iterator() do
 		if ply:Team() ~= TEAM_SPECTATOR then continue end
 		if CurrentRound().name == "fear" and !ply:Alive() then continue end
 		if disappearance and ply != lply then continue end

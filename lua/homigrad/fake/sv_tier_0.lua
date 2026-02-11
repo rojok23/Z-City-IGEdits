@@ -599,6 +599,10 @@ function hg.Fake(ply, huyragdoll, no_freemove, force)
 		//ply:ExitVehicle()
 	--end)
 
+	timer.Simple(0, function() -- bandaid shitfix for now
+		ply:SetCollisionGroup(COLLISION_GROUP_IN_VEHICLE)
+	end)
+
 	if ply:FlashlightIsOn() then ply:Flashlight(false) end
 	ply.oldCanUseFlashlight = ply:CanUseFlashlight()
 	ply:AllowFlashlight(false)
@@ -624,15 +628,16 @@ function hg.SetFreemove(ply, set)
 	if set then
 		ply.lastFakeTime = hg_ragdollcombat:GetBool() and 9999 or 1
 		ply.lastFake = CurTime() + ply.lastFakeTime
-		//ply:SetNetVar("lastFake",ply.lastFake)
+		//ply:SetNetVar("lastFake", ply.lastFake)
 		ply:SetMoveType(MOVETYPE_WALK)
-		--local hull = Vector(5,5,5)
-		--ply:SetHull(-Vector(hull,hull,0),Vector(hull,hull,72))
-		--ply:SetHullDuck(-Vector(hull,hull,0),Vector(hull,hull,36))
-		--ply:SetViewOffset(Vector(0,0,64))
-		--ply:SetViewOffsetDucked(Vector(0,0,34))
+		local hull = Vector(5,5,5)
+		ply:SetHull(-Vector(hull,hull,0),Vector(hull,hull,72))
+		ply:SetHullDuck(-Vector(hull,hull,0),Vector(hull,hull,36))
+		ply:SetViewOffset(Vector(0,0,64))
+		ply:SetViewOffsetDucked(Vector(0,0,34))
 	else
 		ply.lastFake = 0
+		ply.lastFakeTime = 0
 		//ply:SetNetVar("lastFake",0)
 		//if ply:GetMoveType() != (ply:InVehicle() and MOVETYPE_NOCLIP or MOVETYPE_NONE) then
 			//ply:SetMoveType(ply:InVehicle() and MOVETYPE_NOCLIP or MOVETYPE_NONE)
@@ -650,7 +655,7 @@ end
 local CurTime = CurTime
 
 hook.Add("PreCleanupMap","VSEM_VSTAT",function()
-	for i,ply in ipairs(player.GetAll()) do
+	for i, ply in player.Iterator() do
 		hg.FakeUp(ply)
 	end
 end)

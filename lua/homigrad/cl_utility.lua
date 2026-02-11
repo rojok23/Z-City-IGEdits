@@ -399,8 +399,10 @@ players : 1 humans, 0 bots (20 max)
 		if CLIENT then
 			lply = IsValid(lply) and lply or LocalPlayer()
 			local entities = hg.seenents
-
-			for _, ent in ipairs(entities) do
+			
+			for i = 1, #entities do
+				ent = entities[i]
+				
 				if not IsValid(ent) or (ent:IsPlayer() and not ent:Alive()) or IsValid(ent.FakeRagdoll) then continue end
 				--print(ent, CurTime())
 				local ply = ent:IsPlayer() and ent or IsValid(ent.ply) and ent.ply
@@ -645,32 +647,13 @@ players : 1 humans, 0 bots (20 max)
 			if not talker:IsSpeaking() then return end
 			if not IsValid(listener) or not IsValid(talker) or listener == talker then return end
 
-			local entr = talker
-
-			local distance = listener:GetPos():Distance(talker:GetPos())
-
-			if distance > 900000 then return end
-
 			local trace = util.TraceLine({
 				start = listener:EyePos(),
-				endpos = entr:EyePos(),
+				endpos = talker:EyePos(),
 				mask = MASK_SOLID_BRUSHONLY,
 			})
 
-			local volume = 1
-			local mute = 0.5
-
-			if distance < 200 then
-				mute = math.min(0.5 * 2, 1)
-			end
-			if talker:WaterLevel() == 3 then
-				mute = math.max(0.5 / 2, 0)
-			end
-			if trace.Hit or talker:WaterLevel() == 3 then
-				volume = (((distance / 900000) * -1) + 1) * mute
-			else
-				volume = (((distance / 900000) * -1) + 1)
-			end
+			local volume = (talker:WaterLevel() == 3) and 0.25 or (trace.Hit and 0.5 or 1)
 
 			talker:SetVoiceVolumeScale(!hg.muteall and math.min(hg.playerInfo[talker:SteamID()] and hg.playerInfo[talker:SteamID()][2] or 1, volume) or 0)
 		end
@@ -681,16 +664,18 @@ players : 1 humans, 0 bots (20 max)
 			ply:SetVoiceVolumeScale(!hg.muteall and (!hg.mutespect or ply:Alive()) and (hg.playerInfo[ply:SteamID()] and hg.playerInfo[ply:SteamID()][2] or 1) or 0)
 
 			if not ply:Alive() then return end
+			
 			local ent = IsValid(ply.FakeRagdoll) and ply.FakeRagdoll or ply
+			
 			if ply:VoiceVolume() != 0 then
 				if (ply.timedupdate or 0) < CurTime() then
-					UpdateVoiceDSP(LocalPlayer(), ply)
+					UpdateVoiceDSP(lply, ply)
 					
 					ply.timedupdate = CurTime() + 0.5
 				end
 			end
 
-			if LocalPlayer():GetPos():Distance(ent:GetPos()) > 1500 then return end
+			if lply:GetPos():DistToSqr(ent:GetPos()) > 1500 * 1500 then return end
 			
 			local flexes = {
 				[1] = ent:GetFlexIDByName( "jaw_drop" ),
@@ -881,40 +866,13 @@ players : 1 humans, 0 bots (20 max)
 	end
 --//
 
---\\ who write this, what doing this code?
-	if CLIENT then
-		local buf = {}
-		local count = 0
-
-		net.Receive("ZB_BufferSend",function()
-			local buf2 = net.ReadTable()
-
-			buf = buf2
-			count = #buf2
-		end)
-
-		hook.Add("HUDPaint", "huyUwUsss", function()
-			if not buf then return end
-
-			for i = 1, count do
-				local sz = math.Round(buf[i] * 0.5)
-				draw.RoundedBox(0,math.floor((i-1) * ScrW() / count),500 + (sz < 0 and sz or 0),math.ceil(ScrW() / count), math.abs(sz), Color( 255, buf[i] > 0 and 0 or 255, 0))
-			end
-		end)
-	end
---//
-
 --\\ Tinnitus function
 	if CLIENT then
 		local lply = LocalPlayer()
 		local function AddTinnitus(time, needSound)
 			lply = LocalPlayer()
 			lply.tinnitus = CurTime() + time * 4
-			lply:SetDSP(32) -- 36
-			if needSound then -- not used anyway :3
-				//lply:EmitSound("earringing_end.wav")
-				//zcitysnd/real_sonar/tinnitus1.mp3
-			end
+			lply:SetDSP(32)
 		end
 
 		local plymeta = FindMetaTable("Player")

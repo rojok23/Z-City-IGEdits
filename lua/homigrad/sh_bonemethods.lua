@@ -119,11 +119,6 @@ end
 local hg_anims_draw_distance = ConVarExists("hg_anims_draw_distance") and GetConVar("hg_anims_draw_distance") or CreateClientConVar("hg_anims_draw_distance", 1024, true, nil, "distance to draw anims (0 = infinite)", 0, 4096)
 local hg_anim_fps = ConVarExists("hg_anim_fps") and GetConVar("hg_anim_fps") or CreateClientConVar("hg_anim_fps", 66, true, nil, "fps to draw anims (0 = maximum fps available)", 0, 250)
 
-local tolerance = 0.1
-
-local player_GetAll = player.GetAll
-local timeFrame = 0
-
 local function recursive_bones(ply, bone)
 	local children = ply:GetChildBones(bone)
 
@@ -192,10 +187,16 @@ function hg.HomigradBones(ply, dtime)
 	if IsValid(ply.FakeRagdoll) then return end
 
 	if not ply.manipulated then reset(ply) return end
-
+	
 	for bone, tbl in pairs(ply.manipulated) do
 		for layer, tbl in pairs(tbl.layers) do
 			if (tbl.lastset != time) then
+				if tbl.Pos:IsEqualTol(vector_origin, 0.01) and tbl.Ang:IsEqualTol(angle_zero, 0.01) then
+					ply.manipulated[bone] = nil
+
+					continue
+				end
+
 				hg.bone.Set(ply, bone, vector_origin, angle_zero, layer, 0.01, dtime2, true)
 			end
 		end

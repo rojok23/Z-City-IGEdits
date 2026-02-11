@@ -7,8 +7,16 @@ hg.fur = {
 	" uwu",
 	" >w<",
 	" OwO",
+	" ^w^",
 	" *blushes*",
 	" -w-",
+	" ~w~",
+	" mrrawr~~",
+	" mrrp~",
+	" mrreow~",
+	" mwah~",
+	"~",
+	"~~"
 }
 
 local translateSymbol = {
@@ -173,11 +181,11 @@ if CLIENT then
 	local PLAYER = FindMetaTable("Player")
 
 	function PLAYER:Notify(...)
-		return CreateNotification(self, ...)
+		return CreateNotification(...)
 	end
 
 	function PLAYER:NotifyBerserk(...)
-		return CreateNotificationBerserk(self, ...)
+		return CreateNotificationBerserk(...)
 	end
 
 	net.Receive("HGNotificate",function()
