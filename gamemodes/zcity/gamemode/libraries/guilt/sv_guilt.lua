@@ -207,6 +207,11 @@ hook.Add("HomigradDamage", "GuiltReg", function(ply, dmgInfo, hitgroup, ent, har
     add = add * (Victim:IsPlayer() and Attacker:PlayerClassEvent("Guilt", Victim) or 1)
     add = add * 2
 
+    local karmaExemptVictim = Victim:IsPlayer() and Victim:GetNWBool("zb_ulx_racist", false)
+    if karmaExemptVictim then
+        add = 0
+    end
+
     local mul, shouldBanGuilt
     
     if rnd.GuiltCheck then
@@ -215,7 +220,7 @@ hook.Add("HomigradDamage", "GuiltReg", function(ply, dmgInfo, hitgroup, ent, har
         add = add * (mul or 1)
     end
     
-    local guiltadd = amt * 60
+    local guiltadd = karmaExemptVictim and 0 or (amt * 60)
     Attacker.Guilt = (Attacker.Guilt or 0) + guiltadd
     Attacker.Karma = math.Clamp((Attacker.Karma or 100) - add * math.max(((1 - (zb.GuiltTable[Victim][Attacker] or 0)) / 1),0), -60, zb.MaxKarma)
 
