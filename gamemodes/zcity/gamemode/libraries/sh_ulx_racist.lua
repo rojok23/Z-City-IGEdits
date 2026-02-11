@@ -159,7 +159,7 @@ if CLIENT then
         ang:RotateAroundAxis(ang:Right(), 90)
 
         cam.Start3D2D(pos, Angle(0, ang.y, 90), 0.08)
-            draw.SimpleTextOutlined("RACIST: 0 karma lost for kill", "Trebuchet24", 0, 0, drawColor, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 2, color_black)
+            draw.SimpleTextOutlined("RACIST: 0 karma lost if killed", "Trebuchet24", 0, 0, drawColor, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 2, color_black)
         cam.End3D2D()
     end)
 end
