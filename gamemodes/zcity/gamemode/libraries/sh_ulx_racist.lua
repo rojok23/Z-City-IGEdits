@@ -150,17 +150,16 @@ if CLIENT then
 
         local lply = LocalPlayer()
         if not IsValid(lply) then return end
+        if ply == lply then return end
 
-        if lply:GetPos():DistToSqr(ply:GetPos()) > (850 * 850) then return end
-
-        local pos = ply:EyePos() + Vector(0, 0, 12)
+        local pos = ply:EyePos() + Vector(0, 0, 14)
         local ang = EyeAngles()
 
         ang:RotateAroundAxis(ang:Forward(), 90)
         ang:RotateAroundAxis(ang:Right(), 90)
 
         cam.Start3D2D(pos, Angle(0, ang.y, 90), 0.08)
-            draw.SimpleTextOutlined("RACIST: 0 karma lost if killed", "DermaLarge", 0, 0, drawColor, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 2, color_black)
+            draw.SimpleTextOutlined("RACIST: 0 karma lost for kill", "Trebuchet24", 0, 0, drawColor, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 2, color_black)
         cam.End3D2D()
     end)
 end
