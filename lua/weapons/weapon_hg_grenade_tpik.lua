@@ -4,8 +4,6 @@ SWEP.PrintName = "M67"
 SWEP.Instructions = 
 [[M67 fragmentation grenade is used by many countries around the world since 1968. It has a pyrotechnic delay of 4-5.5 seconds.
 
-Reload looking on surface will set tripwire
-
 LMB - High ready
 While high ready:
 RMB to remove spoon.
