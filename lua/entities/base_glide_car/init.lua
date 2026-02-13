@@ -455,7 +455,7 @@ function ENT:UpdateSteering( dt )
         local wep = IsValid(self:GetDriver()) and self:GetDriver():GetActiveWeapon()
         local cantsteer = IsValid(self:GetDriver()) and IsValid(wep) and ishgweapon(wep) and wep.reload
         self.customSteering = cantsteer and (self.customSteering or 0) or self:GetInputFloat( 1, "steer" )
-        self.oldInputSteer = math.Approach(self.oldInputSteer or 0, self.customSteering, self.customSteering != 0 and math.max(1 - self.forwardSpeed / 10000,2) * dt or self.forwardSpeed / 15000)
+        self.oldInputSteer = math.Approach(self.oldInputSteer or 0, cantsteer and 0 or self.customSteering, self.customSteering != 0 and math.max(1 - self.forwardSpeed / 7000,2) * dt or self.forwardSpeed / 15000)
 
         if cantsteer then
             self.oldInputSteer = math.Approach(self.oldInputSteer, 0, self.forwardSpeed / 50000)
@@ -463,7 +463,7 @@ function ENT:UpdateSteering( dt )
 
         local noise = math.random(-1,1)
         if cantsteer or self.steeringNeedNoise and self.steeringNeedNoise > CurTime() then
-            self.oldInputSteer = self.oldInputSteer + math.min(math.max( (noise / 10) * self.forwardSpeed / 500, -0.2),0.2)
+            self.oldInputSteer = self.oldInputSteer + math.min(math.max( (noise / 10) * self.forwardSpeed / 500, -0.1),0.1)
         end
 
         self.oldInputSteer = math.min(math.max(self.oldInputSteer,-1),1)
