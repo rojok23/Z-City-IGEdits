@@ -109,8 +109,9 @@ COMMANDS.help = {function(ply,args)
 	ply:ChatPrint(text)
 end,0}
 
-if SERVER then
-    util.AddNetworkString("PunishLightningEffect")
+if not SERVER then return end
+
+util.AddNetworkString("PunishLightningEffect")
     util.AddNetworkString("AnotherLightningEffect")
     util.AddNetworkString("PluvCommand")
 
@@ -223,4 +224,32 @@ if SERVER then
 			end
 		end
 	end, 0}
-end
+
+	concommand.Add("zb_print_players", function(ply)
+		if IsValid(ply) and not ply:IsAdmin() then
+			ply:ChatPrint("You do not have access to this command.")
+			return
+		end
+
+		local output = {"=== Players (appearance name -> steam name) ==="}
+
+		for _, target in ipairs(player.GetAll()) do
+			local appearanceName = target:GetNWString("PlayerName", "")
+			if appearanceName == "" and target.CurAppearance then
+				appearanceName = target.CurAppearance.AName or ""
+			end
+			if appearanceName == "" then appearanceName = "<no appearance name>" end
+
+			output[#output + 1] = string.format("%s -> %s (%s)", appearanceName, target:Name(), target:SteamID())
+		end
+
+		if IsValid(ply) then
+			for _, line in ipairs(output) do
+				ply:PrintMessage(HUD_PRINTCONSOLE, line)
+			end
+			ply:ChatPrint("Printed player appearance names and Steam names to your console.")
+			return
+		end
+
+		print(table.concat(output, "\n"))
+	end)
