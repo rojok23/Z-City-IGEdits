@@ -9,7 +9,7 @@ net.Receive("zb_cs_round_intermission", function()
 end)
 
 function PANEL:Init()
-	self:SetPos(sw * 0.4, sh * 0.1)
+	self:SetPos(sw * 0.4, sh * 0.15)
 	self:SetSize(sw * 0.2, sh * 0.07)
 	if IsValid(zb.CSIntermission) then
 		zb.CSIntermission:Remove()
