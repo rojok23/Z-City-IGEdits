@@ -270,9 +270,6 @@ function zb.tdm_checkpoints()
     if #zb.GetMapPoints( "RIOT_TDM_LAW" ) == 0 then
         zb.SaveMapPoints( "RIOT_TDM_LAW", points )
     end
-    if #zb.GetMapPoints( "HMCD_SWO_WAGNER" ) == 0 then
-        zb.SaveMapPoints( "HMCD_SWO_WAGNER", points )
-    end
 
     --||
 
