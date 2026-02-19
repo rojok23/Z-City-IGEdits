@@ -1,9 +1,9 @@
 if SERVER then AddCSLuaFile() end
-SWEP.Base = "weapon_base"
-SWEP.PrintName = "Bandage"
+SWEP.Base = "weapon_tpik_base"
+SWEP.PrintName = "Medicine Base"
 SWEP.Instructions = "A wad of gauze bandage, can help stop light bleeding. Since the bandage is not in its packaging, there is little chance that it is sterilized. RMB to use on someone else."
 SWEP.Category = "ZCity Medicine"
-SWEP.Spawnable = true
+SWEP.Spawnable = false
 SWEP.AdminOnly = false
 SWEP.Primary.ClipSize = -1
 SWEP.Primary.DefaultClip = -1
@@ -18,6 +18,9 @@ SWEP.Secondary.Ammo = "none"
 SWEP.HoldType = "slam"
 SWEP.ViewModel = ""
 SWEP.WorldModel = "models/bandages.mdl"
+SWEP.WorldModelReal = "models/weapons/nmrih/items/bandage/v_item_bandages.mdl" -- racist model... i will create my own anims i don't care.
+SWEP.WorldModelExchange = false
+
 if CLIENT then
 	SWEP.WepSelectIcon = Material("vgui/wep_jack_hmcd_bandage")
 	SWEP.IconOverride = "vgui/wep_jack_hmcd_bandage.png"
@@ -35,65 +38,36 @@ SWEP.Slot = 3
 SWEP.SlotPos = 1
 
 SWEP.WorkWithFake = true
-SWEP.offsetVec = Vector(4, -3.5, 0)
-SWEP.offsetAng = Angle(90, 90, 0)
 
-modelshuy = modelshuy or {}
+SWEP.setlh = true
+SWEP.setrh = true
 
-function SWEP:DrawWorldModel()
-	if not IsValid(self:GetOwner()) then
-		self:DrawWorldModel2()
-	end
-end
+SWEP.sprint_ang = Angle(20,0,0)
+SWEP.sprint_pos = Vector(0,0,0)
 
-function SWEP:DrawWorldModel2(nodraw)
-	if self.Color then
-		render.SetColorModulation(self.Color.r/255,self.Color.g/255,self.Color.b/255)
-	end
+SWEP.HoldPos = Vector(0,0,0)
+SWEP.HoldAng = Angle(0,0,0)
 
-	local mdl = self.Model or self.WorldModel
-	modelshuy[mdl] = IsValid(modelshuy[mdl]) and modelshuy[mdl] or ClientsideModel(mdl)
-	modelshuy[mdl]:SetNoDraw(true)
-	local WorldModel = modelshuy[mdl]
-	local owner = self:GetOwner()
-	owner = hg.GetCurrentCharacter(owner)
-	if not IsValid(WorldModel) then return end
+SWEP.AnimList = {
+    -- self:PlayAnim( anim,time,cycling,callback,reverse,sendtoclient )
+	["deploy"] = { "Draw", 0.5, false },
+    ["heal"] = { "Bandage", 4.5, false, false, function(self)
+		if CLIENT then return end
 
-	if self.ModelScale then
-		WorldModel:SetModelScale(self.ModelScale or 1)
-	end
-	if self.Color then
-		WorldModel:SetColor(self.Color or color_white)
-	end
-	
-	if IsValid(owner) then
-		local offsetVec = self.offsetVec
-		local offsetAng = self.offsetAng
-		local boneid = owner:LookupBone(((owner.organism and owner.organism.rarmamputated) or (owner.zmanipstart ~= nil and owner.zmanipseq == "interact" and not owner.organism.larmamputated)) and "ValveBiped.Bip01_L_Hand" or "ValveBiped.Bip01_R_Hand")
-		if not boneid then return end
-		local matrix = owner:GetBoneMatrix(boneid)
-		if not matrix then return end
-		local newPos, newAng = LocalToWorld(offsetVec, offsetAng, matrix:GetTranslation(), matrix:GetAngles())
-		WorldModel:SetPos(newPos)
-		WorldModel:SetAngles(newAng)
-		WorldModel:SetupBones()
-	else
-		WorldModel:SetPos(self:GetPos())
-		WorldModel:SetAngles(self:GetAngles())
-	end
+		self.healbuddy = self:GetOwner()
+		local done = self:Heal(self.healbuddy, self.mode)
 
-	WorldModel:SetupBones()
+		if (done and self.PostHeal) then
+			self:PostHeal(self.healbuddy, self.mode)
+		end
 
-	if self.AfterDrawModel then
-		self:AfterDrawModel(WorldModel,nodraw)
-	end
-	
-	if not nodraw then WorldModel:DrawModel() end
-
-	if self.Color then
-		render.SetColorModulation(1,1,1)
-	end
-end
+		if self.net_cooldown2 < CurTime() then
+			self:SetNetVar("modeValues",self.modeValues)
+		end
+		self:PlayAnim("deploy")
+	end, 0.2 },
+	["idle"] = {"Idle", 5, true}
+}
 
 function SWEP:OnRemove()
 	if SERVER then return end
@@ -112,86 +86,18 @@ function SWEP:SetupDataTables()
 	end
 end
 
-local bone, name
-function SWEP:BoneSet(lookup_name, vec, ang)
-	local owner = self:GetOwner()
-    if IsValid(owner) and !owner:IsPlayer() then return end
-	hg.bone.Set(owner, lookup_name, vec, ang, "bandage", 0.01)
-end
-
-local lang1, lang2 = Angle(0, -10, 0), Angle(0, 10, 0)
-function SWEP:Animation()
-	local owner = self:GetOwner()
-	local aimvec = self:GetOwner():GetAimVector()
-	local hold = self:GetHolding()
-	if (owner.zmanipstart ~= nil and not owner.organism.larmamputated) then return end
-	self:BoneSet("r_upperarm", vector_origin, Angle(30 - hold / 4, -30 + hold / 2 + 20 * aimvec[3], 5 - hold / 3.5))
-    self:BoneSet("r_forearm", vector_origin, Angle(hold / 10, -hold / 2.5, 35 -hold/1.5))
-end
 
 SWEP.usetime = 2
 local math = math
+
 function SWEP:Think()
-	self:SetHold(self.HoldType)
-
-	if self:GetClass() == "weapon_bandage_sh" then
-		self.ModelScale = math.Clamp(self.modeValues[1] / (self.modeValuesdef[1][1] * 0.8), 0.5, 1)
-	end
-
-	--[[if self.modeValuesdef[self.mode][2] then
-		local time = CurTime()
-		local ply = self:GetOwner()
-		local entownr = hg.GetCurrentCharacter(ply)
-
-		if not self.attack and ply:KeyPressed(IN_ATTACK) then
-			self.startedheal = CurTime()
-			self.healsubject = ply
-			self.attack = 1
-		end
-
-		if self.attack == 1 and ply:KeyReleased(IN_ATTACK) then
-			self.endheal = CurTime()
-		end
-
-		if not self.attack and ply:KeyPressed(IN_ATTACK2) then
-			self.startedheal = CurTime()
-			self.healsubject = hg.eyeTrace(self:GetOwner()).Entity
-			self.attack = 2
-		end
-
-		if self.attack == 2 and ply:KeyReleased(IN_ATTACK2) then
-			self.endheal = CurTime()
-		end
-
-		if self.startheal and (self.endheal or (self.startheal + self.usetime <= CurTime())) then
-			self.endheal = self.endheal or self.startheal + self.usetime
-			local usedmuch = (self.endheal - self.startheal) / self.usetime
-
-			self:Heal(self.healsubject, self.mode, usedmuch)
-			self.startheal = nil 
-			self.endheal = nil 
-			self.attack = nil 
-			self.healsubject = nil
-		end
-	end--]]
 end
+
 SWEP.net_cooldown2 = 0
+
 function SWEP:PrimaryAttack()
-	//self:SetHolding(math.min(self:GetHolding() + 9, 100))
-	if SERVER then--and not self.modeValuesdef[self.mode][2] then
-		//if self:GetHolding() < 100 then return end
-
-		self.healbuddy = self:GetOwner()
-		local done = self:Heal(self.healbuddy, self.mode)
-		
-		if(done and self.PostHeal)then
-			self:PostHeal(self.healbuddy, self.mode)
-		end
-
-		if self.net_cooldown2 < CurTime() then
-			self:SetNetVar("modeValues",self.modeValues)
-			--self.net_cooldown2 = CurTime() + 0.1
-		end
+	if SERVER and self:CanHeal(self:GetOwner()) then
+		self:PlayAnim("heal")
 	end
 end
 
@@ -401,6 +307,14 @@ end
 -- WoundTBL = {dmgBlood / 2, localPos, localAng, bone, time}
 SWEP.ShouldDeleteOnFullUse = true
 if SERVER then
+	function SWEP:CanHeal(ent)
+		local org = ent.organism
+		local owner = self:GetOwner()
+		if not org then return end
+
+		return self.modeValues[1] >= 0 and (#org.wounds > 0 or org.lleg == 1 or org.rleg == 1 or org.skull >= 0.6 or org.chest == 1 or org.rarm == 1 or org.larm == 1)
+	end
+
 	function SWEP:Bandage(ent, bone)
 		local org = ent.organism
 		local owner = self:GetOwner()
@@ -1097,6 +1011,7 @@ end
 function SWEP:Deploy()
 	if SERVER or CLIENT and self:IsLocal() then
 		self:EmitSound(self.DeploySnd, 50, math.random(90, 110))
+		self:PlayAnim("deploy")
 	end
 
 	if self.DeployAdd then self:DeployAdd() end

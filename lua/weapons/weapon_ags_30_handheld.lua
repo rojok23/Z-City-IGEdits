@@ -2,8 +2,8 @@ SWEP.Base = "homigrad_base"
 SWEP.Spawnable = true
 SWEP.AdminOnly = true
 SWEP.PrintName = "AGS-30"
-SWEP.Author = "TODO"
-SWEP.Instructions = "Babah"
+SWEP.Author = "Degtyaryov Plant"
+SWEP.Instructions = "Russian automatic grenade launcher"
 SWEP.Category = "Weapons - Grenade Launchers"
 SWEP.Slot = 2
 SWEP.SlotPos = 10
@@ -105,8 +105,7 @@ SWEP.availableAttachments = {
 		["mountType"] = {"agsmount"},
 		["mount"] = {agsmount = Vector(0, 0, 0)},
 		["mountAngle"] = Angle(0,0,0),
-		["removehuy"] = {
-		},
+		["removehuy"] = {},
 	},
 }
 

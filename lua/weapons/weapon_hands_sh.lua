@@ -742,6 +742,7 @@ function SWEP:CanPickup(ent)
 end
 
 local trMins, trMaxs = Vector(-5, -5, -5), Vector(5, 5, 5)
+local trMinsClaws, trMaxsClaws = Vector(-8, -8, -8), Vector(8, 8, 8)
 function SWEP:SecondaryAttack()
 	local owner = self:GetOwner()
 	if owner:InVehicle() then return end
@@ -767,9 +768,27 @@ function SWEP:SecondaryAttack()
 				start = pos,
 				endpos = pos + owner:GetAimVector() * self.ReachDistance,
 				filter = {ply, hg.GetCurrentCharacter(ply)},
+				mins = trMinsClaws,
+				maxs = trMaxsClaws,
+			})
+		else
+			tr = util.TraceLine({
+				start = pos,
+				endpos = pos + owner:GetAimVector() * self.ReachDistance,
+				filter = {ply, hg.GetCurrentCharacter(ply)},
 				mins = trMins,
 				maxs = trMaxs,
 			})
+
+			if !tr.Hit or tr.Entity:IsWorld() then
+				tr = util.TraceHull({
+					start = pos,
+					endpos = pos + owner:GetAimVector() * self.ReachDistance,
+					filter = {ply, hg.GetCurrentCharacter(ply)},
+					mins = trMins,
+					maxs = trMaxs,
+				})
+			end
 		end
 
 		--if (IsValid(tr.Entity) or game.GetWorld() == tr.Entity) and self:CanPickup(tr.Entity) and not tr.Entity:IsPlayer() then
@@ -996,11 +1015,12 @@ function SWEP:ApplyForce()
 
 				local tr = {}
 				tr.start = TargetPos
-				tr.endpos = TargetPos - vector_up * 16
-				tr.mask = MASK_SOLID_BRUSHONLY
+				tr.endpos = TargetPos - vector_up * 32
+				tr.mask = MASK_SOLID
+				tr.filter = {self.CarryEnt, self, ply}
 				local trace = util.TraceLine(tr)
-
-				if bone != "ValveBiped.Bip01_Spine2" or not trace.Hit then
+				
+				if bone != "ValveBiped.Bip01_Spine2" or !trace.Hit then
 					phys:ApplyForceCenter(ply:GetAimVector() * math.min(5000, phys:GetMass() * 800))
 					self:SetCarrying()
 				end
@@ -1479,7 +1499,18 @@ function SWEP:AttackFront(special_attack, rand)
 	--self.PenetrationCopy = -(-self.Penetration) -- это как
 	owner:LagCompensation(true)
 	local Ent, HitPos, _, physbone, trace = WhomILookinAt(owner, .3, special_attack and 35 or 45)
-	if true --[[clawClasses[owner.PlayerClassName]] then
+	if clawClasses[owner.PlayerClassName] then
+		local pos = hg.eye(owner)
+		trace = util.TraceHull({
+			start = pos,
+			endpos = pos + owner:GetAimVector() * self.ReachDistance,
+			filter = {owner, hg.GetCurrentCharacter(owner)},
+			mins = trMinsClaws,
+			maxs = trMaxsClaws,
+		})
+		Ent = trace.Entity
+		HitPos = trace.HitPos
+	else
 		local pos = hg.eye(owner)
 		trace = util.TraceHull({
 			start = pos,
@@ -1961,3 +1992,33 @@ function SWEP:Holster( wep )
 
 	return true
 end
+
+-- hook.Add("IKPoleRightArm", "HandsPoles", function(ply, ent)
+-- 	local wep = ply.GetActiveWeapon and ply:GetActiveWeapon() or false
+-- 	if wep and IsValid(wep) then
+-- 		local mdl = wep.GetWM and IsValid(wep:GetWM()) and wep:GetWM() or false
+-- 		if mdl then
+-- 			local rh = mdl:LookupBone("ValveBiped.Bip01_R_Forearm")
+-- 			if not rh then return end
+-- 			local rhmat = mdl:GetBoneMatrix(rh)
+-- 			if rhmat then
+-- 				return rhmat:GetTranslation()
+-- 			end
+-- 		end
+-- 	end
+-- end)
+
+-- hook.Add("IKPoleLeftArm", "HandsPoles", function(ply, ent)
+-- 	local wep = ply.GetActiveWeapon and ply:GetActiveWeapon() or false
+-- 	if wep and IsValid(wep) then
+-- 		local mdl = wep.GetWM and IsValid(wep:GetWM()) and wep:GetWM() or false
+-- 		if mdl then
+-- 			local lh = mdl:LookupBone("ValveBiped.Bip01_L_Forearm")
+-- 			if not lh then return end
+-- 			local lhmat = mdl:GetBoneMatrix(lh)
+-- 			if lhmat then
+-- 				return lhmat:GetTranslation()
+-- 			end
+-- 		end
+-- 	end
+-- end)
