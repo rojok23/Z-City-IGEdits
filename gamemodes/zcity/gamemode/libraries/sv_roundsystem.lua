@@ -8,6 +8,7 @@ function zb.AddFade()
 	net.Broadcast()
 end
 
+local setweightconvar = CreateConVar("zb_roundweight", 1, FCVAR_ARCHIVE + FCVAR_REPLICATED + FCVAR_NOTIFY, "Sets if alternate weight config is used or not to ensure more base Homicide rounds", 0, 1)
 local forcemodeconvar = CreateConVar("zb_forcemode", "random", nil, "Set force mode (set to 'random' to disable)")
 forcemodeconvar:SetString("random")
 function zb:GetMode(round)
@@ -384,17 +385,28 @@ function zb.WeightedChanceMode(modes_chances)
 	local random = math.random(weight)
 
 	local count = 0
-	for name, chance in RandomPairs(modes_chances) do
-		count = count + (newchancestbl[name] or chance) * 100
+	if setweightconvar:GetInt() == 1 then
+		for name, chance in RandomPairs(modes_chances) do
+			count = count + (newchancestbl[name] or chance) * 100
 
-		if count >= random then
-			return name
+			if count == random then
+				return name
+			end
 		end
+
+		return "hmcd"
+	else
+		for name, chance in RandomPairs(modes_chances) do
+			count = count + (newchancestbl[name] or chance) * 100
+
+			if count >= random then
+				return name
+			end
+		end
+
+		return "hmcd"
 	end
-
-	return "hmcd"
 end
-
 function zb.GetWorldSize()
 	/*
 	local world = game.GetWorld()
