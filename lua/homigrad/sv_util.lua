@@ -1033,7 +1033,7 @@ end)
 
 hook.Add( "Move", "hg_RagdollIntoWalls", function( ply, mv)
 	local vel = mv:GetVelocity()
-	if ply:GetMoveType() == MOVETYPE_WALK and vel:Length() > 750 and not hg.GetCurrentCharacter(ply):IsRagdoll() then
+	if ply:GetMoveType() == MOVETYPE_WALK and vel:LengthSqr() > 750 * 750 and not hg.GetCurrentCharacter(ply):IsRagdoll() and !(ply.IsStimulated and ply:IsStimulated()) then
 		local tr = util.TraceLine({
 			start = ply:GetPos(),
 			endpos = ply:GetPos() + vel:Angle():Forward() * 100,
@@ -1283,25 +1283,32 @@ hook.Add( "OnEntityCreated", "ReplaceEnt", function( ent )
 end )
 
 -- https://www.youtube.com/watch?v=HvtIwUgJgjA
--- Death
-local reasons = {
-	"Goodbye.",
-    "Better luck next time.",
-    "Error",
-    "Something wrong"
-}
+--\\ Kick on death
+	local reasons = {
+		"Goodbye.",
+		"Better luck next time.",
+		"Error",
+		"Something wrong"
+	}
 
-local plymeta = FindMetaTable("Player")
+	local plymeta = FindMetaTable("Player")
 
-local flags = bit.bor(FCVAR_REPLICATED, FCVAR_NOTIFY, FCVAR_SERVER_CAN_EXECUTE, FCVAR_NEVER_AS_STRING)
-local hg_sync = CreateConVar("hg_sync", 0, flags, "Toggle death synchronized (kick player on death)", 0, 1)
+	local flags = bit.bor(FCVAR_REPLICATED, FCVAR_NOTIFY, FCVAR_SERVER_CAN_EXECUTE, FCVAR_NEVER_AS_STRING)
+	local hg_sync = CreateConVar("hg_sync", 0, flags, "Toggle death synchronized (kick player on death)", 0, 1)
 
-function plymeta:SyncDeath()
-	local SyncLastMessage = table.Random(reasons)
-	if !self:IsSuperAdmin() then
-		self:Kick(SyncLastMessage)
+	function plymeta:SyncDeath()
+		local SyncLastMessage = table.Random(reasons)
+		if !self:IsSuperAdmin() then
+			self:Kick(SyncLastMessage)
+		end
 	end
-end
+
+	hook.Add("PlayerDeath","I_Feel_Death",function(ply)
+		if hg_sync:GetBool() then
+			ply:SyncDeath()
+		end
+	end)
+--//
 
 oldGetUseEntity = oldGetUseEntity or plymeta.GetUseEntity
 
@@ -1311,27 +1318,44 @@ function plymeta:GetUseEntity()
 	return ent
 end
 
-hook.Add("PlayerDeath","I_Feel_Death",function(ply)
-	if hg_sync:GetBool() then
-		ply:SyncDeath()
-	end
-end)
-
-hook.Add("PostEntityTakeDamage", "GlassShards", function(ent, dmginfo)
-	if IsValid(ent) and math.random(4) == 2 then
-		if ent:GetClass() == "func_breakable_surf" or (ent:GetClass() == "func_breakable" and ent:GetMaterialType() == MAT_GLASS) then
-			local glass = ents.Create("weapon_hg_glassshard")
-			local inf = dmginfo:GetInflictor()
-			glass:SetPos(IsValid(inf) and inf:GetPos() or dmginfo:GetAttacker():GetPos())
-			glass:SetAngles(AngleRand(-180, 180))
-			glass:Spawn()
-			glass.IsSpawned = true
-			glass.init = true
-			--Player(2):SetPos(IsValid(inf) and inf:GetPos() or dmginfo:GetAttacker():GetPos())
-			--print(ent, glass) -- bro im spawned and etc.
+--\\ Get shards/table legs on break
+	local string_find = string.find
+	hook.Add("PropBreak", "FurnitureLegs", function(ply, ent)
+		if IsValid(ent) and string_find(ent:GetModel(), "furniture", 1, "%a") and math.random(3) == 2 then
+			if string_find(ent:GetModel(), "table", 1, "%a") or string_find(ent:GetModel(), "drawer", 1, "%a") or string_find(ent:GetModel(), "desk", 1, "%a") then
+				local leg = ents.Create("weapon_table_leg")
+				leg:SetPos(ent:GetPos())
+				leg:SetAngles(AngleRand(-180, 180))
+				leg:Spawn()
+				leg.IsSpawned = true
+				leg.init = true
+			elseif string_find(ent:GetModel(), "chair", 1, "%a") or string_find(ent:GetModel(), "vanity", 1, "%a") then
+				local leg = ents.Create("weapon_chair_leg")
+				leg:SetPos(ent:GetPos())
+				leg:SetAngles(AngleRand(-180, 180))
+				leg:Spawn()
+				leg.IsSpawned = true
+				leg.init = true
+			end
 		end
-	end
-end)
+	end)
+
+	hook.Add("PostEntityTakeDamage", "GlassShards", function(ent, dmginfo)
+		if IsValid(ent) and math.random(4) == 2 then
+			if ent:GetClass() == "func_breakable_surf" or (ent:GetClass() == "func_breakable" and ent:GetMaterialType() == MAT_GLASS) then
+				local glass = ents.Create("weapon_hg_glassshard")
+				local inf = dmginfo:GetInflictor()
+				glass:SetPos(IsValid(inf) and inf:GetPos() or dmginfo:GetAttacker():GetPos())
+				glass:SetAngles(AngleRand(-180, 180))
+				glass:Spawn()
+				glass.IsSpawned = true
+				glass.init = true
+				--Player(2):SetPos(IsValid(inf) and inf:GetPos() or dmginfo:GetAttacker():GetPos())
+				--print(ent, glass) -- bro im spawned and etc.
+			end
+		end
+	end)
+--//
 
 local entMeta = FindMetaTable( "Entity" )
 
@@ -1498,7 +1522,7 @@ end )
 
 hook.Add("PlayerUse", "DoorClose", function(ply, ent)
 	local getdoor = ply:GetUseEntity()
-	if string.find(tostring(getdoor), "prop_door_rotating") and getdoor:GetInternalVariable("m_eDoorState") == 2 then
+	if string_find(tostring(getdoor), "prop_door_rotating") and getdoor:GetInternalVariable("m_eDoorState") == 2 then
 		if getdoor:GetInternalVariable("m_hMaster") != NULL then
 			getdoor:GetInternalVariable("m_hMaster"):Fire("close")
 			hg.RunZManipAnim(ply, "door_open_back", nil, 2, {self})
@@ -1613,9 +1637,18 @@ hook.Add("Org Think", "BodyTemperature", function(owner, org, timeValue) -- пе
 	
 	local isFreezing = temp < 0
 	local isHeating = temp > 30
-	
+
+	local MaxWarmMul = 1
+	local warmLoseMul = 1
+
 	if temp < -20 then
 		changeRate = changeRate * math.abs(temp) * 0.1
+	end
+	local result1,result2,result3 = hook.Run("ZC_BodyTemperature", owner, org, timeValue, changeRate, MaxWarmMul, warmLoseMul)
+	if result1 and result2 and result3 then
+		changeRate = result1
+		MaxWarmMul = result2
+		warmLoseMul = result3
 	end
 
 	if temp > 25 then
@@ -1671,9 +1704,9 @@ hook.Add("Org Think", "BodyTemperature", function(owner, org, timeValue) -- пе
 		org.HeatDMGCd = CurTime() + 0.5
 	end
 
-	org.heatbuff = math.Approach(org.heatbuff, isFreezing and -30 or 30, timeValue * 1)
+	org.heatbuff = math.Approach(org.heatbuff, isFreezing and -30 or 30 * MaxWarmMul, (timeValue * 1) * warmLoseMul)
 
-	org.heatbuff = math.Approach(org.heatbuff, 120, timeValue * math.Clamp(warming * 1, 0, 4))
+	org.heatbuff = math.Approach(org.heatbuff, 120 * MaxWarmMul, timeValue * math.Clamp(warming * 1, 0, 4))
 
 	//PrintTable(ents.FindInSphere(org.owner:GetPos(), 128))
 	--мб сделать тепло от env_sprite?
@@ -1787,6 +1820,15 @@ end
 local hook_Run = hook.Run
 
 hook.Add("PlayerTick", "ilovefurries", function(ply)
+	ply.lastcall_tick = ply.lastcall_tick or SysTime() - 0.01
+	local dtime = SysTime() - ply.lastcall_tick
+
+	hook_Run("Player Think", ply, CurTime(), dtime)
+
+	ply.lastcall_tick = SysTime()
+end)
+
+hook.Add("VehicleMove", "ilovefurries", function(ply, veh, mv)
 	ply.lastcall_tick = ply.lastcall_tick or SysTime() - 0.01
 	local dtime = SysTime() - ply.lastcall_tick
 
