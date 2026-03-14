@@ -141,7 +141,7 @@ OpenMenu = function(tbl)
 	function guiltMenu:Paint( w, h )
 		BlurBackground(self)
 
-		surface.SetDrawColor( 255, 0, 0, 128)
+		surface.SetDrawColor( 0, 255, 255, 128)
         surface.DrawOutlinedRect( 0, 0, w, h, 2.5 )
 	end
 
@@ -165,7 +165,7 @@ OpenMenu = function(tbl)
         but.Paint = function(self,w,h)
             BlurBackground(self)
             clr = LerpFT(0.1, clr, self:IsHovered() and 0 or 255)
-            surface.SetDrawColor( 255, 0, 0, 128)
+            surface.SetDrawColor( 0, 255, 255, 128)
             surface.DrawOutlinedRect( 0, 0, w, h, 2.5 )
 
             local x, y = 0, h / 2

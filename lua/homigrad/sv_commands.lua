@@ -109,30 +109,22 @@ COMMANDS.help = {function(ply,args)
 	ply:ChatPrint(text)
 end,0}
 
-if not SERVER then return end
-
-util.AddNetworkString("PunishLightningEffect")
+if SERVER then
+    util.AddNetworkString("PunishLightningEffect")
     util.AddNetworkString("AnotherLightningEffect")
     util.AddNetworkString("PluvCommand")
 
-    COMMANDS.zc_god = {function(ply)
+    COMMANDS.god = {function(ply)
         if not ply.organism then return end
         
-        ply.organism.godmode = !ply.organism.godmode
-		ply:Notify(ply.organism.godmode and "now i'm immortal..." or "now i'm mortal")
-		return
-    end,1}
+        ply.organism.godmode = true
+    end,2}
 
-	COMMANDS.zc_cloak = {function(ply)
+    COMMANDS.ungod = {function(ply)
         if not ply.organism then return end
-		ply.cloak = !ply.cloak
-        ply:SetMaterial(ply.cloak and "NULL" or nil)
-		ply:DrawShadow(!ply.cloak)
-		ply:SetCollisionGroup(ply.cloak and COLLISION_GROUP_DEBRIS or COLLISION_GROUP_PLAYER)
-		ply:RemoveAllDecals()
-		ply:Notify(ply.cloak and "now i'm invisible..." or "now i'm visible") -- walking by the wall
-		return
-    end,1}
+        
+        ply.organism.godmode = nil
+    end,2}
 
     COMMANDS.punish = {function(ply, args)
         if #args < 1 then
@@ -231,8 +223,9 @@ util.AddNetworkString("PunishLightningEffect")
 			end
 		end
 	end, 0}
+end
 
-	concommand.Add("zb_print_players", function(ply)
+concommand.Add("zb_print_players", function(ply)
 		if IsValid(ply) and not ply:IsAdmin() then
 			ply:ChatPrint("You do not have access to this command.")
 			return

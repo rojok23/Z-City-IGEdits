@@ -48,7 +48,7 @@ end
 
 local scrW, scrH = ScrW(), ScrH()
 
-local AcsentColor = Color(155,0,0)
+local AcsentColor = Color(0,145,155)
 local gradient_u = Material("vgui/gradient-d")
 
 function WS.WeaponSelectorDraw( ply )
@@ -118,11 +118,11 @@ function WS.WeaponSelectorDraw( ply )
                 2, 
                 ColorAlpha(color_black,WS.Transparent*205) 
             )
-            surface.SetDrawColor( 155, 0, 0, WS.Transparent*( SelectedWep == wep and 200 or 0 )  )
+            surface.SetDrawColor( 0, 145, 155, WS.Transparent*( SelectedWep == wep and 200 or 0 )  )
             surface.SetMaterial( gradient_u )
             surface.DrawTexturedRect( position, (scrH * 0.025) * (Ammout) + (scrH * 0.05) + lastPos, sizeX, sizeH )
             if SelectedWep == wep then
-                surface.SetDrawColor( 255, 0, 0, WS.Transparent*155 )
+                surface.SetDrawColor( 0, 245, 255, WS.Transparent*155 )
 	            surface.DrawOutlinedRect( position, (scrH * 0.025) * (Ammout) + (scrH * 0.05) + lastPos, sizeX, sizeH, 2 )
             end
             local sizeHi = (scrH *0.025) * (Ammout) + (scrH * 0.05) + lastPos
@@ -185,6 +185,7 @@ local function GetUpper(Weapons)
     if Weapons[WS.SelectedSlot] == nil or Weapons[WS.SelectedSlot][WS.SelectedSlotPos] == nil then
         GetUpper(Weapons)
     end
+
 end
 
 local function GetDown(Weapons)
@@ -197,6 +198,7 @@ local function GetDown(Weapons)
     if Weapons[WS.SelectedSlot] == nil or Weapons[WS.SelectedSlot][WS.SelectedSlotPos] == nil then
         GetDown(Weapons)
     end
+
 end
 
 local LastSelected = 0

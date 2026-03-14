@@ -40,14 +40,14 @@ function PANEL:Paint(w, h)
     if self.disabled then
         surface.SetDrawColor(255, 255, 255, 50)
     else
-        surface.SetDrawColor(239, 47, 47)
+        surface.SetDrawColor(47, 239, 239)
     end
 
     surface.DrawOutlinedRect(0, 0, w, h, ScreenScale(0.5))
 
     self.lerp = Lerp( FrameTime() * 5, self.lerp, w * (self.Votes / player.GetCount()) )
 
-    surface.SetDrawColor(169, 0, 0, 100)
+    surface.SetDrawColor(0, 169, 169, 100)
     surface.DrawRect( 0, 0, self.lerp, h )
 
     if self.Win and self.BipCD < CurTime() then
@@ -64,7 +64,7 @@ function PANEL:Paint(w, h)
         })
     end
 
-    surface.SetDrawColor(239, 47, 47, self.alpha)
+    surface.SetDrawColor(47, 239, 239, self.alpha)
     surface.DrawRect(0, 0, w, h)
 
 end

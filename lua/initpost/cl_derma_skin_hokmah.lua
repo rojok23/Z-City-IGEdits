@@ -1,8 +1,9 @@
 --\\
 	HOKMAH_VGUI = HOKMAH_VGUI or {}
 	HOKMAH_VGUI.MainColor = Color(130, 130 ,130)
-	HOKMAH_VGUI.SecondaryColor = Color(155,0,0,240)
+	HOKMAH_VGUI.SecondaryColor = Color(0,155,155,240)
 	HOKMAH_VGUI.BackgroundColor = Color(165,165,165)
+	HOKMAH_VGUI.MenuButton = Color(155,0,0)
 --//
 
 --; Adapted from Helix
@@ -42,7 +43,7 @@ SKIN.Colours.Warning = Color(230, 180, 0)
 SKIN.Colours.MenuLabel = color_white
 SKIN.Colours.DarkerBackground = Color(0, 0, 0, 77)
 
-SKIN.Colours.Outline = Color(155, 0, 0, 255)
+SKIN.Colours.Outline = Color(0, 155, 155)
 SKIN.Colours.Background = Color(0, 0, 0, 205)
 
 SKIN.Colours.SegmentedProgress = {}
@@ -508,12 +509,12 @@ end
 function SKIN:PaintComboDownArrow(panel, width, height)
 	surface.SetFont("ZCity_Fixed_Icons_Small")
 
-	local textWidth, textHeight = surface.GetTextSize("r")
+	local textWidth, textHeight = surface.GetTextSize("V")
 	local alpha = (panel.ComboBox:IsMenuOpen() or panel.ComboBox.Hovered) and 200 or 100
 
-	surface.SetTextColor(ColorAlpha(HOKMAH_VGUI.MainColor, alpha))
+	surface.SetTextColor(ColorAlpha(HOKMAH_VGUI.MenuButton, alpha))
 	surface.SetTextPos(width * 0.5 - textWidth * 0.5, height * 0.5 - textHeight * 0.5)
-	surface.DrawText("r")
+	surface.DrawText("V")
 end
 
 function SKIN:PaintPropertySheet( panel, width, height )
@@ -531,7 +532,7 @@ function SKIN:PaintPropertySheet( panel, width, height )
 	surface.SetDrawColor(30, 30, 30, 150)
 	surface.DrawRect(0, 0, width, height)
 
-	surface.SetDrawColor(255, 0, 0, 150)
+	surface.SetDrawColor(0, 255, 255, 150)
 	surface.DrawOutlinedRect(0, 0, width, height)
 end
 
@@ -548,7 +549,7 @@ function SKIN:PaintActiveTab( panel, w, h )
 
 	surface.SetDrawColor(30, 30, 30, 150)
 	surface.DrawRect(0, 0, w, h*0.8)
-	surface.SetDrawColor(255, 0, 0, 150)
+	surface.SetDrawColor(0, 255, 255, 150)
 	surface.DrawOutlinedRect(0, 0, w, h*0.8,1)
 
 end

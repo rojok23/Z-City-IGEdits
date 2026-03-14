@@ -1,6 +1,6 @@
 if not ulx then return end
 
-local CATEGORY_NAME = "Punishment"
+local CATEGORY_NAME = "ZCity"
 local RACIST_NETVAR = "zb_ulx_racist"
 
 local function IsValidTarget(target_ply)
@@ -124,6 +124,24 @@ if SERVER then
         end
     end)
 
+    hook.Add("CanPlayerHearPlayerVoice", "ZB_ULXRacist_MuteVoiceLegacy", function(listener, talker)
+        if IsRacist(talker) then
+            return false, false
+        end
+    end)
+
+    hook.Add("PlayerCanSeePlayersChat", "ZB_ULXRacist_BlockDeadChatVisibility", function(text, teamOnly, listener, speaker)
+        if IsRacist(speaker) then
+            return false
+        end
+    end)
+
+    hook.Add("CanListenOthers", "ZB_ULXRacist_BlockDeadChatSend", function(output, input, isChat)
+        if isChat and IsRacist(input) then
+            return false, false
+        end
+    end)
+
     hook.Add("PlayerSpawn", "ZB_ULXRacist_StripOnSpawn", function(ply)
         ApplyRacistRestrictions(ply)
     end)
@@ -159,7 +177,7 @@ if CLIENT then
         ang:RotateAroundAxis(ang:Right(), 90)
 
         cam.Start3D2D(pos, Angle(0, ang.y, 90), 0.08)
-            draw.SimpleTextOutlined("RACIST: 0 karma lost if killed", "Trebuchet24", 0, 0, drawColor, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 2, color_black)
+            draw.SimpleTextOutlined("RACIST: 0 karma lost for kill", "Trebuchet24", 0, 0, drawColor, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 2, color_black)
         cam.End3D2D()
     end)
 end

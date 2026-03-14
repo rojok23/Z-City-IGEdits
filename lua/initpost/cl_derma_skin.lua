@@ -1,9 +1,10 @@
 --\\
 hg.VGUI = hg.VGUI or {}
-hg.VGUI.MainColor = Color(150, 0 ,0)
-hg.VGUI.SecondaryColor = Color(155,0,0,240)
+hg.VGUI.MainColor = Color(0, 150 ,150)
+hg.VGUI.SecondaryColor = Color(0,155,155,240)
 hg.VGUI.BackgroundColor = Color(25,25,35,220)
 hg.VGUI.MainSkin = "ZCity"
+hg.VGUI.MenuButton = Color(155,0,0)
 
 function hg.GetMainSkin()
 	return hg.VGUI.MainSkin
@@ -132,7 +133,7 @@ SKIN.Colours.Warning = Color(230, 180, 0)
 SKIN.Colours.MenuLabel = color_white
 SKIN.Colours.DarkerBackground = Color(0, 0, 0, 77)
 
-SKIN.Colours.Outline = Color(155, 0, 0, 255)
+SKIN.Colours.Outline = Color(0, 155, 155)
 SKIN.Colours.Background = Color(0, 0, 0, 205)
 
 SKIN.Colours.SegmentedProgress = {}
@@ -495,12 +496,12 @@ end
 function SKIN:PaintComboDownArrow(panel, width, height)
 	surface.SetFont("ZCity_Fixed_Icons_Small")
 
-	local textWidth, textHeight = surface.GetTextSize("r")
+	local textWidth, textHeight = surface.GetTextSize("V")
 	local alpha = (panel.ComboBox:IsMenuOpen() or panel.ComboBox.Hovered) and 200 or 100
 
-	surface.SetTextColor(ColorAlpha(hg.VGUI.MainColor, alpha))
+	surface.SetTextColor(ColorAlpha(hg.VGUI.MenuButton, alpha))
 	surface.SetTextPos(width * 0.5 - textWidth * 0.5, height * 0.5 - textHeight * 0.5)
-	surface.DrawText("r")
+	surface.DrawText("V")
 end
 
 function SKIN:PaintPropertySheet( panel, width, height )
@@ -518,7 +519,7 @@ function SKIN:PaintPropertySheet( panel, width, height )
 	surface.SetDrawColor(30, 30, 30, 150)
 	surface.DrawRect(0, 0, width, height)
 
-	surface.SetDrawColor(255, 0, 0, 150)
+	surface.SetDrawColor(0, 255, 255, 150)
 	surface.DrawOutlinedRect(0, 0, width, height)
 end
 
@@ -535,7 +536,7 @@ function SKIN:PaintActiveTab( panel, w, h )
 
 	surface.SetDrawColor(30, 30, 30, 150)
 	surface.DrawRect(0, 0, w, h*0.8)
-	surface.SetDrawColor(255, 0, 0, 150)
+	surface.SetDrawColor(0, 255, 255, 150)
 	surface.DrawOutlinedRect(0, 0, w, h*0.8,1)
 
 end

@@ -1,56 +1,80 @@
-MODE.name = "riot"
+MODE.name = "smo"
 
 local MODE = MODE
-
-net.Receive("riot_start", function()
-    if RiotSound then
-        RiotSound:Stop()
-        RiotSound = nil
-    end
-
-    sound.PlayFile("sound/zbattle/riot.wav", "noplay", function(station)
-        if IsValid(station) then
-            station:SetVolume(6) 
-            station:Play()
-            RiotSound = station
-        end
-    end)
-
-    zb.RemoveFade()
+local StartTime = 0
+local PointsProgress = {}
+net.Receive("swo_start",function()
+    StartTime = CurTime()
+	timer.Simple(.5,function()
+		surface.PlaySound(LocalPlayer():Team() == 1 and "ukraineround.wav" or "hohols.mp3")
+	end)
+	zb.RemoveFade()
+    PointsProgress = {}
 end)
+local respawntime = CurTime()
 
+net.Receive("swo_respawn",function()
+	respawntime = net.ReadFloat() + 5
+    hook.Add("HUDPaint","_Respawn",function()
+		if respawntime < CurTime() then hook.Remove("HUDPaint","Respawn") return end
+		 
+		if lply:Alive() then return end
+		local fade = math.Clamp(respawntime - CurTime(),0,1)
+		draw.SimpleText( "Respawn in "..string.FormattedTime( respawntime - CurTime(), "%02i:%02i:%02i" ), "ZB_HomicideMedium", sw * 0.5, sh * 0.8, ColorObj, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+	end)
+end)
 
 local teams = {
 	[0] = {
-		objective = "",
-		name = "a Rioter",
-		color1 = Color(190,0,0),
-		color2 = Color(190,0,0)
+		objective = "Your task is to destroy the enemy forces of Russia.",
+		name = "an Ukraine soldier",
+		color1 = Color(90,75,0),
+		color2 = Color(90,75,0)
 	},
 	[1] = {
-		objective = "",
-		name = "a Law Enforcement",
-		color1 = Color(0,120,190),
-		color2 = Color(0,120,190)
+		objective = "Your task is to destroy the enemy forces of Ukraine.",
+		name = "a Russian soldier",
+		color1 = Color(10,75,0),
+		color2 = Color(10,75,0)
 	},
 }
 
 function MODE:RenderScreenspaceEffects()
-    if zb.ROUND_START + 7.5 < CurTime() then return end
-    local fade = math.Clamp(zb.ROUND_START + 7.5 - CurTime(),0,1)
+    if StartTime + 7.5 < CurTime() then return end
+    local fade = math.Clamp(StartTime + 7.5 - CurTime(),0,1)
 
     surface.SetDrawColor(0,0,0,255 * fade)
     surface.DrawRect(-1,-1,ScrW() + 1,ScrH() + 1)
 end
 
+net.Receive("SWO_PointsUpdate",function()
+	PointsProgress = net.ReadTable() or {}
+	--PrintTable(PointsProgress)
+end)
+local hohColor = Color(150,128,42,105)
+local wagColor = Color(33,109,0,105)
+local bgColor = Color(0,0,0,155)
+local sizeH = ScreenScale(8)
+local sizeW = ScreenScale(10)
+
 function MODE:HUDPaint()
-    if zb.ROUND_START + 8.5 < CurTime() then return end
+	local i = -#PointsProgress/2
+	for n,points in pairs(PointsProgress) do
+		local pos = points[2]:ToScreen()
+		local posH = sizeH
+		local posW = pos.x
+		draw.RoundedBox(0,posW,posH-sizeH*math.abs(points[1]/100),sizeW,sizeH*math.abs(points[1]/100),points[1] < 0 and hohColor or wagColor)
+		draw.RoundedBox(0,posW,posH-sizeH,sizeW,sizeH,bgColor)
+		draw.DrawText(string.Left(n,1),"ZCity_Tiny", posW + sizeW/2 - 1,posH-sizeH,color_white,TEXT_ALIGN_CENTER)
+	end
+
+    if StartTime + 8.5 < CurTime() then return end
 	 
 	if not lply:Alive() then return end
 	zb.RemoveFade()
-    local fade = math.Clamp(zb.ROUND_START + 8 - CurTime(),0,1)
+    local fade = math.Clamp(StartTime + 8 - CurTime(),0,1)
 	local team_ = lply:Team()
-    draw.SimpleText("Homicide | Riot", "ZB_HomicideMediumLarge", sw * 0.5, sh * 0.1, Color(0,162,255, 255 * fade), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+    draw.SimpleText("ZVBattle | Special Military Operation", "ZB_HomicideMediumLarge", sw * 0.5, sh * 0.1, Color(0,162,255, 255 * fade), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
     local Rolename = teams[team_].name
     local ColorRole = teams[team_].color1
     ColorRole.a = 255 * fade
@@ -60,19 +84,11 @@ function MODE:HUDPaint()
     local ColorObj = teams[team_].color2
     ColorObj.a = 255 * fade
     draw.SimpleText( Objective, "ZB_HomicideMedium", sw * 0.5, sh * 0.9, ColorObj, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
-
-	if hg.PluvTown.Active then
-		surface.SetMaterial(hg.PluvTown.PluvMadness)
-		surface.SetDrawColor(255, 255, 255, math.random(175, 255) * fade / 2)
-		surface.DrawTexturedRect(sw * 0.25, sh * 0.44 - ScreenScale(15), sw / 2, ScreenScale(30))
-
-		draw.SimpleText("SOMEWHERE IN PLUVTOWN", "ZB_ScrappersLarge", sw / 2, sh * 0.44 - ScreenScale(2), Color(0, 0, 0, 255 * fade), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
-	end
 end
 
 local CreateEndMenu
 
-net.Receive("riot_roundend",function()
+net.Receive("swo_roundend",function()
     CreateEndMenu()
 end)
 
@@ -165,7 +181,7 @@ CreateEndMenu = function()
         surface.DrawOutlinedRect( 0, 0, w, h, 2.5 )
 	end
 
-	for i,ply in player.Iterator() do
+	for i,ply in ipairs(player.GetAll()) do
 		if ply:Team() == TEAM_SPECTATOR then continue end
 		local but = vgui.Create("DButton",DScrollPanel)
 		but:SetSize(100,50)

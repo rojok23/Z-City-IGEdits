@@ -206,7 +206,7 @@ CreateEndMenu = function()
 		surface.SetTextPos(w / 2 - lengthX/2,20)
 		surface.DrawText(txt)
 
-		surface.SetDrawColor( 255, 0, 0, 128)
+		surface.SetDrawColor( 0, 255, 255, 128)
         surface.DrawOutlinedRect( 0, 0, w, h, 2.5 )
 	end
 	
@@ -216,7 +216,7 @@ CreateEndMenu = function()
 	function DScrollPanel:Paint( w, h )
 		BlurBackground(self)
 
-		surface.SetDrawColor( 255, 0, 0, 128)
+		surface.SetDrawColor( 0, 255, 255, 128)
         surface.DrawOutlinedRect( 0, 0, w, h, 2.5 )
 	end
 

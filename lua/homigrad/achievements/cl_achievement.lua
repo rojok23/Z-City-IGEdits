@@ -16,7 +16,7 @@ local gradient_u = Material("vgui/gradient-u")
 gradient_r = Material("vgui/gradient-r")
 
 local function PaintButton(self,w,h)
-    surface.SetDrawColor(155, 0, 0, 108)
+    surface.SetDrawColor(0, 155, 155, 108)
     surface.SetMaterial(gradient_l)
     surface.DrawTexturedRect( 0, 0, w, h )
 end
@@ -106,10 +106,7 @@ local function createButton_2(frame, ach, text, func, y)
     button:SetPos(0,y)
     button.DoClick = function(self) 
         curent_panel_ach = ach
-        func(self)
-		for i = 1, 3 do
-			surface.PlaySound("shitty/tap_depress.wav")
-		end
+        func(self) 
     end
     return button
 end
@@ -117,11 +114,11 @@ end
 local gradient_d = Material("vgui/gradient-d")
 local function PaintFrame(self,w,h)
 	BlurBackground(self)
-    surface.SetDrawColor(50, 0, 0, 155)
+    surface.SetDrawColor(0, 50, 50, 155)
     surface.SetMaterial(gradient_d)
     surface.DrawTexturedRect( 0, 0, w, h )
 
-	surface.SetDrawColor( 150, 0, 0, 128)
+	surface.SetDrawColor( 0, 150, 150, 128)
     surface.DrawOutlinedRect( 0, 0, w, h, 2.5 )
 end
 
@@ -137,16 +134,21 @@ function hg.DrawAchievmentsMenu(ParentPanel)
     if ParentPanel then
         ParentPanel:SetAlpha(0)
         ParentPanel.Paint = function(self,w,h)
-            surface.SetDrawColor(28,28,28,255)
-            surface.DrawRect(0, 0, w, h)
+            surface.SetDrawColor(155,100,20,15)
+            surface.SetMaterial(gradient_r)
+            surface.DrawTexturedRect(0, 0, w, h)
+            
+            surface.SetDrawColor(20,155,155,15)
+            surface.SetMaterial(gradient_l)
+            surface.DrawTexturedRect(0, 0, w, h)
 
             surface.SetDrawColor(107, 107, 107,20)
             for i = 1, (ybars + 1) do
-                surface.DrawRect((sw / ybars) * i - (CurTime() * 30 % (sw / ybars)), 0, ScreenScale(1), sh)
+                surface.DrawRect((sw / ybars) * i - (CurTime() * 18 % (sw / ybars)), 0, ScreenScale(1), sh)
             end
 
             for i = 1, (xbars + 1) do
-                surface.DrawRect(0, (sh / xbars) * (i - 1) + (CurTime() * 30 % (sh / xbars)), sw, ScreenScale(1))
+                surface.DrawRect(0, (sh / xbars) * (i - 1) + (CurTime() * 18 % (sh / xbars)), sw, ScreenScale(1))
             end
 
             local border_size = ScreenScale(2)
@@ -163,8 +165,8 @@ function hg.DrawAchievmentsMenu(ParentPanel)
     frame:SetSize(ParentPanel:GetWide()/2.5, ScreenScale(22)*8.25+ScreenScale(2.5))
     frame:SetPos(5, ParentPanel:GetTall()/2 - frame:GetTall()/2)
     frame.Paint = function()
+        
     end
-
     hg.achievements.MenuPanel = frame
 
     local scroll = vgui.Create("DScrollPanel",frame)
@@ -209,12 +211,12 @@ function hg.DrawAchievmentsMenu(ParentPanel)
     frame2:Center()
     frame2:SetPos(frame:GetX()+frame:GetWide(),frame:GetY())
     frame2.Paint = function(self,w,h)
-        surface.SetDrawColor(92,0,0,108)
+        surface.SetDrawColor(0,92,92,108)
         surface.SetMaterial(gradient_d)
         surface.DrawTexturedRect(0,0,w,h)
-        surface.SetDrawColor(40,36,36,255)
+        surface.SetDrawColor(36,40,40)
         surface.DrawRect(0,h-h/6,w,h/6)
-        surface.SetDrawColor(22,21,21)
+        surface.SetDrawColor(21,21,22)
         surface.DrawRect(0,h-3,w,3)
         
         if curent_panel_ach then
@@ -283,7 +285,7 @@ net.Receive("hg_NewAchievement",function()
 	surface.PlaySound("homigrad/vgui/achievement_earned.wav")
 end)
 
-local ach_clr1 , ach_clr2 = Color(200,25,25), Color(100,25,25)
+local ach_clr1 , ach_clr2 = Color(25,200,200), Color(25,100,100)
 hook.Add("HUDPaint","hg_NewAchievement", function()
     local frametime = FrameTime() * 10
     for i = 1, #AchTable do
@@ -298,11 +300,11 @@ hook.Add("HUDPaint","hg_NewAchievement", function()
         local HPos = ScrH() - ( HSize * ach.Lerp )
         draw.RoundedBox( 0, 2, HPos + 2, WSize - 4, HSize - 4, ach_clr2 )
 		
-		surface.SetDrawColor(155, 0, 0, 255)
+		surface.SetDrawColor(0, 155, 155)
 		surface.SetMaterial(gradient_u)
 		surface.DrawTexturedRect( 0, HPos, WSize, HSize )
 	
-		surface.SetDrawColor( 150, 0, 0, 255)
+		surface.SetDrawColor( 0, 150, 150)
 		surface.DrawOutlinedRect( 0, HPos, WSize, HSize, 2.5 )
 
         surface.SetFont("HomigradFontMedium")

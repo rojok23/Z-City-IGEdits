@@ -1,11 +1,11 @@
 local PANEL = {}
 local curent_panel 
-local red_select = Color(192,0,0)
+local red_select = Color(30,190,230)
 
 local Selects = {
     {Title = "Disconnect", Func = function(luaMenu) RunConsoleCommand("disconnect") end},
     {Title = "Main Menu", Func = function(luaMenu) gui.ActivateGameUI() luaMenu:Close() end},
-    {Title = "Discord", Func = function(luaMenu) luaMenu:Close() gui.OpenURL("https://discord.gg/475EmEdTgH")  end},
+    {Title = "Discord", Func = function(luaMenu) luaMenu:Close() gui.OpenURL("https://discord.gg/WRujPJn")  end},
     {Title = "Traitor Role",
     GamemodeOnly = true,
     CreatedFunc = function(self, parent, luaMenu)
@@ -88,12 +88,15 @@ local splasheh = {
     'HOP ON Z-CITY',
     'JOHN Z-CITY',
     ':pluvrare:',
-    'SAW51 IS REAL',
     'MORE SMALLTOWN',
     'MORE CLUE2022',
     'BACKROOMS == CLUE',
     'HELL IS NEAR',
-    'I WISH YOU GOOD HEALTH, JASON STATHAM'
+    'I WISH YOU GOOD HEALTH, JASON STATHAM',
+    'MAKE THEM REMEMBER JASON.',
+    'SENTIMENTAL! SENTIMENTAL! SENTIMENTAL!',
+    'SPONSORED BY AUTISMSPEAKS.ORG',
+    'THIS SERVER IS SPONSORED BY ISRAELYGPT'
 }
 
 --print(string.upper('I wish you good health, Jason Statham'))
@@ -116,18 +119,18 @@ function PANEL:InitializeMarkup()
 	local gm = splasheh[math.random(#splasheh)] .. " | " .. string.NiceName(mapname) 
 
     if hg.PluvTown.Active then
-        local text = "<font=ZC_MM_Title><colour=199,2,2>    </colour>City</font>\n<font=ZCity_Tiny><colour=105,105,105>" .. gm .. "</colour></font>"
+        local text = "<font=ZC_MM_Title><colour=199,2,2>    </colour>-City</font>\n<font=ZCity_Tiny><colour=105,105,105>" .. gm .. "</colour></font>"
 
         self.SelectedPluv = table.Random(hg.PluvTown.PluvMats)
 
         return markup.Parse(text)
     end
 
-    local text = "<font=ZC_MM_Title><colour=199,2,2,255>Z</colour>-City</font>\n<font=ZCity_Tiny><colour=105,105,105>" .. gm .. "</colour></font>"
+    local text = "<font=ZC_MM_Title><colour=30,195,255>IG</colour>-City</font>\n<font=ZCity_Tiny><colour=105,105,105>" .. gm .. "</colour></font>"
     return markup.Parse(text)
 end
 
-local color_red = Color(255,25,25,45)
+local color_red = Color(25,255,255,45)
 local clr_gray = Color(255,255,255,25)
 local clr_verygray = Color(10,10,19,235)
 
@@ -159,7 +162,7 @@ function PANEL:Init()
         if hg.PluvTown.Active then
             surface.SetDrawColor(color_white)
             surface.SetMaterial(self.SelectedPluv or Pluv)
-            surface.DrawTexturedRect(0, ScreenScale(27), ScreenScale(35), ScreenScale(27))
+            surface.DrawTexturedRect(0, ScreenScale(32), ScreenScale(40), ScreenScale(32))
         end
 
         self.Title:Draw(ScreenScale(15), ScreenScale(50), TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER, 255, TEXT_ALIGN_LEFT)
@@ -209,7 +212,7 @@ function PANEL:Init()
     zteam:DockMargin(ScreenScale(10), 0, 0, 0)
     zteam:SetFont("ZCity_Tiny")
     zteam:SetTextColor(clr_gray)
-    zteam:SetText("Authors: uzelezz, Sadsalat, \nMr.Point, Zac90, Deka, Mannytko")
+    zteam:SetText("Authors: uzelezz, Sadsalat, Mr.Point, Zac90, Deka, Mannytko")
     zteam:SetContentAlignment(4)
     zteam:SizeToContents()
 end
@@ -222,7 +225,7 @@ local gradient_d = surface.GetTextureID("vgui/gradient-d")
 local gradient_r = surface.GetTextureID("vgui/gradient-u")
 local gradient_l = surface.GetTextureID("vgui/gradient-l")
 
-local clr_1 = Color(102,0,0,35)
+local clr_1 = Color(0,102,102,10)
 function PANEL:Paint(w,h)
     draw.RoundedBox( 0, 0, 0, w, h, self.ColorBG )
     hg.DrawBlur(self, 5)
@@ -252,10 +255,7 @@ function PANEL:AddSelect( pParent, strTitle, tbl )
     btn.RColor = Color(225,225,225)
     function btn:DoClick()
         -- ,kz оптимизировать надо, но идёт ошибка(кэшировать бы luaMenu.panelparrent вместо вызова его каждый раз)
-        if curent_panel == string.lower(strTitle) then
-			for i = 1, 3 do
-				surface.PlaySound("shitty/tap_release.wav")
-			end
+        if curent_panel == string.lower(strTitle) then 
             luaMenu.panelparrent:AlphaTo(0,0.2,0,function()
                 luaMenu.panelparrent:Remove()
                 luaMenu.panelparrent = nil
@@ -283,9 +283,6 @@ function PANEL:AddSelect( pParent, strTitle, tbl )
             btn.Func(luaMenu,luaMenu.panelparrent)
             curent_panel = string.lower(strTitle)
         end)
-		for i = 1, 3 do
-			surface.PlaySound("shitty/tap_depress.wav")
-		end
     end
 
     function btn:Think()
@@ -296,7 +293,7 @@ function PANEL:AddSelect( pParent, strTitle, tbl )
 
         local targetText = (self:IsHovered()) and string.upper(strTitle) or strTitle
         local crw = self:GetText()
-
+        
         if (crw ~= targetText) or (curent_panel == string.lower(strTitle)) then
             local ntxt = ""
             local will_text = (curent_panel == string.lower(strTitle) and not strTitle == 'Traitor Role') and '[ '..string.upper(strTitle)..' ]' or strTitle
@@ -308,9 +305,6 @@ function PANEL:AddSelect( pParent, strTitle, tbl )
                     ntxt = ntxt .. char
                 end
             end
-			if self:GetText() ~= ntxt then
-				surface.PlaySound("shitty/tap-resonant.wav")
-			end
             self:SetText(ntxt)
         end
         self:SizeToContents()

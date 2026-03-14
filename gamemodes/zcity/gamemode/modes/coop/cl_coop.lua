@@ -148,7 +148,7 @@ CreateEndMenu = function()
 	DScrollPanel:SetSize(sizeX - 20, sizeY - 90)
 	function DScrollPanel:Paint( w, h )
 
-		surface.SetDrawColor( 255, 0, 0, 128)
+		surface.SetDrawColor( 0, 255, 255, 128)
         surface.DrawOutlinedRect( 0, 0, w, h, 2.5 )
 	end
 

@@ -227,6 +227,11 @@ else
 		hook.Run("HG_PlayerSay", ply, txtTbl, text) // our shit gets called later
 		text = isstring(txtTbl[1]) and txtTbl[1] or text // checks to see if shit hits the ceiling
 
+	    local prefix = string.sub(text, 1, 1)
+		if prefix == "!" then
+			return
+		end
+
 		if text == "" then return end
 
 		if ply:Alive() and ply.organism and ply.organism.otrub then return end
