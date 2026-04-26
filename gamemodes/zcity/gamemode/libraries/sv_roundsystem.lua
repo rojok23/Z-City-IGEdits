@@ -371,6 +371,28 @@ function zb.GetModesChances()
 	return newtbl
 end
 
+function RoundWeighted2(tab)
+
+	local sum = 0
+	for _, chance in pairs(tab) do
+		sum = sum + chance
+	end
+
+	local select = math.random() * sum
+	
+	for key, chance in pairs(tab) do
+		select = select - chance
+		if select < 0 then return key end
+	end
+end 
+
+local homicidemodes = {
+	standard = 25,
+	soe = 15,
+	wildwest = 7,
+	gunfreezone = 10,
+}
+
 function zb.WeightedChanceMode(modes_chances)
 	local weight = 0
 
@@ -393,14 +415,14 @@ function zb.WeightedChanceMode(modes_chances)
 			end
 		end
 
-		local homicidemodes = {
-			"soe",
-			"wildwest",
-			"standard",
-			"gunfreezone",
-		}
+		// local homicidemodes = {
+		// 	"soe",
+		// 	"wildwest",
+		// 	"standard",
+		// 	"gunfreezone",
+		// }
 
-		return table.Random(homicidemodes)
+		return RoundWeighted2(homicidemodes)
 	else
 		for name, chance in RandomPairs(modes_chances) do
 			count = count + (newchancestbl[name] or chance) * 100
