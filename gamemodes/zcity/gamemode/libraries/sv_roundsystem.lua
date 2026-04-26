@@ -390,7 +390,7 @@ local homicidemodes = {
 	standard = 25,
 	soe = 15,
 	wildwest = 7,
-	gunfreezone = 10,
+	gunfreezone = 7,
 }
 
 function zb.WeightedChanceMode(modes_chances)
