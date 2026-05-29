@@ -1,3 +1,5 @@
+local unconloot = CreateConVar("zb_unconloot", 0, FCVAR_ARCHIVE + FCVAR_REPLICATED + FCVAR_NOTIFY, "Sets if player must be knocked out to be looted.", 0, 1)
+
 local blackList = {
     ["weapon_hands_sh"] = true,
     ["weapon_zombclaws"] = true
